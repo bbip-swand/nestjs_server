@@ -12,4 +12,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   autoLoadEntities: true,
   synchronize: true,
+  migrationsTableName: 'migration_table',
+  migrations: ['dist/src/migrations/*{.ts,.js}'],
 };

@@ -3,6 +3,6 @@ import { Expose } from 'class-transformer';
 
 export class AppleLoginResponseDto {
   @Expose()
-  @ApiProperty()
-  readonly;
+  @ApiProperty({ type: String, description: 'Access Token' })
+  readonly accessToken: string;
 }

@@ -1,25 +1,29 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
-import { LocalAuthGuard } from 'src/utils/guards/local-auth.guard';
+// import { LocalAuthGuard } from 'src/utils/guards/local-auth.guard';
+import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
 import { AuthService } from './auth.service';
 import { AppleLoginRequestDto } from './dto/apple-login-request.dto';
-import { AppleLoginResponseDto } from './dto/apple-login-response';
+import { AppleLoginResponseDto } from './dto/apple-login-response.dto';
+import { LocalAuthGuard } from './local.strategy';
+// import { LocalAuthGuard } from './local.strategy';
 
 @Controller('auth')
-@ApiTags('Auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login/apple')
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard())
+  @SkipJwtAuthGuard
   @ApiOperation({ summary: 'Apple 로그인' })
   @RestMethod({
     request: AppleLoginRequestDto,
     response: AppleLoginResponseDto,
   })
-  async appleLogin(@Body() body: AppleLoginRequestDto, @Request() req) {
-    // ): Promise<AppleLoginResponseDto> {
-    return await this.authService.appleLogin(req.user);
+  async appleLogin(@Request() req): Promise<AppleLoginResponseDto> {
+    const result = await this.authService.appleLogin(req.user);
+    return result;
   }
 }

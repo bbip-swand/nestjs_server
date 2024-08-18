@@ -1,22 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-local';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  mixin,
+  Type,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 
-@Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private authService: AuthService) {
-    super({
-      usernameField: 'identityToken',
-      passwordField: 'authorizationCode',
-    });
-  }
+export const LocalAuthGuard = (): Type<CanActivate> => {
+  @Injectable()
+  class LocalAuthGuardMixin implements CanActivate {
+    constructor(private readonly authService: AuthService) {}
 
-  async validate(
-    identityToken: string,
-    authorizationCode: string,
-  ): Promise<any> {
-    const result = await this.authService.validateUser(identityToken);
-    return result;
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+      const req = context.switchToHttp().getRequest();
+      const identityToken = req.body.identityToken;
+      const result = await this.authService.validateUser(identityToken);
+      req.user = result;
+
+      return true;
+    }
   }
-}
+  return mixin(LocalAuthGuardMixin);
+};

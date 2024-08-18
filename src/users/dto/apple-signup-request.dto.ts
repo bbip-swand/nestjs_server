@@ -1,8 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-export class AppleLoginRequestDto {
+export class AppleSignupRequestDto {
   @Expose()
   @ApiProperty({ type: String })
   readonly identityToken: string;
+
+  @Expose()
+  @ApiProperty({ type: String })
+  readonly authorizationCode: string;
 }

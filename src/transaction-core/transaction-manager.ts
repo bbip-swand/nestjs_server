@@ -1,0 +1,51 @@
+import { EntityManager } from 'typeorm';
+
+export class TransactionManager {
+  queryRunner;
+  dataSource;
+  jobs = [];
+
+  constructor(queryRunner?: any) {
+    if (queryRunner) {
+      this.queryRunner = queryRunner;
+    }
+  }
+
+  get manager(): EntityManager {
+    if (!this.queryRunner) {
+      throw new Error('transaction을 먼저 시작해야합니다.');
+    }
+    return this.queryRunner.manager;
+  }
+
+  async create() {
+    if (!this.queryRunner) {
+      this.queryRunner = this.dataSource.createQueryRunner();
+      return true;
+    }
+    return false;
+  }
+
+  async start() {
+    await this.queryRunner.startTransaction();
+  }
+
+  async rollback() {
+    for (const job of this.jobs.reverse()) {
+      await job();
+    }
+    await this.queryRunner.rollbackTransaction();
+  }
+
+  async commit() {
+    await this.queryRunner.commitTransaction();
+  }
+
+  async release() {
+    await this.queryRunner.release();
+  }
+
+  async addRollbackJob(func: () => Promise<any>) {
+    this.jobs.push(func);
+  }
+}

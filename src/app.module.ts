@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { typeOrmConfig } from './config/ormconfig';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
+import { StudyCreateModule } from './study-create/study-create.module';
+import { StudyManageModule } from './study-manage/study-manage.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { TransactionCoreModule } from './transaction-core/transaction-core.modul
     }),
     AuthModule,
     TransactionCoreModule,
+    StudyCreateModule,
+    StudyManageModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

@@ -61,7 +61,7 @@ export class UsersService {
     data.append('code', `${dto.authorizationCode}`);
     data.append('grant_type', 'authorization_code');
 
-    const response = await lastValueFrom(
+    const response: any = await lastValueFrom(
       this.httpService
         .post('https://appleid.apple.com/auth/token', data, {
           headers: {

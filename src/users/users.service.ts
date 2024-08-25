@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
-import { lastValueFrom, map } from 'rxjs';
+import { filter, lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
@@ -61,7 +61,7 @@ export class UsersService {
     data.append('code', `${dto.authorizationCode}`);
     data.append('grant_type', 'authorization_code');
 
-    const response = await lastValueFrom(
+    const response: any = await lastValueFrom(
       this.httpService
         .post('https://appleid.apple.com/auth/token', data, {
           headers: {
@@ -85,9 +85,22 @@ export class UsersService {
   }
 
   async createUserInfo(dto: userInfoRequestDto, user: User): Promise<UserInfo> {
+    const { location, ...filteredDto } = dto;
+    const UserLocationInfo = {
+      location1: location[0],
+      location2: location[1],
+      location3: location[2],
+    };
+
+    for (const key in UserLocationInfo) {
+      if (!UserLocationInfo[key]) {
+        delete UserLocationInfo[key];
+      }
+    }
     const newUserInfo: UserInfo = await this.userInfoRepository.save({
       dbUserId: user.dbUserId,
-      ...dto,
+      ...UserLocationInfo,
+      ...filteredDto,
     });
 
     return newUserInfo;

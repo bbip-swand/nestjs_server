@@ -11,16 +11,11 @@ export class userInfoRequestDto {
   profileImageUrl?: string;
 
   @Expose()
-  @ApiProperty({ type: String })
-  location1?: string;
-
-  @Expose()
-  @ApiProperty({ type: String })
-  location2?: string;
-
-  @Expose()
-  @ApiProperty({ type: String })
-  location3?: string;
+  @ApiProperty({
+    type: [String],
+    description: 'Array of locations in the format [도, 시, 구]',
+  })
+  location?: string[];
 
   @Expose()
   @ApiProperty({ type: String })

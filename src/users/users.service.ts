@@ -97,7 +97,6 @@ export class UsersService {
         delete UserLocationInfo[key];
       }
     }
-    console.log({ ...UserLocationInfo });
     const newUserInfo: UserInfo = await this.userInfoRepository.save({
       dbUserId: user.dbUserId,
       ...UserLocationInfo,

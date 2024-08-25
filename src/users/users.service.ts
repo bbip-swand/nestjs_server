@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
-import { filter, lastValueFrom, map } from 'rxjs';
+import { lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
@@ -107,13 +107,28 @@ export class UsersService {
   }
 
   async updateUserInfo(dto: userInfoRequestDto, user: User): Promise<UserInfo> {
+    const { location, ...filteredDto } = dto;
+    const UserLocationInfo = {
+      location1: location[0],
+      location2: location[1],
+      location3: location[2],
+    };
+
+    for (const key in UserLocationInfo) {
+      if (!UserLocationInfo[key]) {
+        UserLocationInfo[key] = null;
+      }
+    }
+
     const userInfo = await this.userInfoRepository.findOne({
       where: { dbUserId: user.dbUserId },
     });
 
     const updatedUserInfo = await this.userInfoRepository.save({
       dbUserId: userInfo.dbUserId,
-      ...dto,
+      ...userInfo,
+      ...UserLocationInfo,
+      ...filteredDto,
     });
 
     return updatedUserInfo;

@@ -22,6 +22,7 @@ export class TransactionCoreService {
       return result;
     } catch (err) {
       if (isRoot) {
+        console.log('transaction rollback');
         await transaction.rollback();
       }
       throw err;

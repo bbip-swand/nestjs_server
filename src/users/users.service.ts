@@ -50,7 +50,7 @@ export class UsersService {
 
   async appleSignup(
     dto: AppleSignupRequestDto,
-    transaction = new TransactionManager(),
+    // transaction = new TransactionManager(),
   ) {
     const user = await this.authService.verifyAppleToken(dto.identityToken);
 

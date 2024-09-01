@@ -9,7 +9,6 @@ import { typeOrmConfig } from './config/ormconfig';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { StudyCreateModule } from './study-create/study-create.module';
-import { StudyManageModule } from './study-manage/study-manage.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { StudyManageModule } from './study-manage/study-manage.module';
     AuthModule,
     TransactionCoreModule,
     StudyCreateModule,
-    StudyManageModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

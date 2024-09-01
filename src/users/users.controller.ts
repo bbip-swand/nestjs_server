@@ -33,7 +33,6 @@ export class UsersController {
     request: userInfoRequestDto,
   })
   async createUserInfo(@Body() dto: userInfoRequestDto, @Request() req) {
-    console.log(req);
     const result = await this.usersService.createUserInfo(dto, req.user);
     return result;
   }

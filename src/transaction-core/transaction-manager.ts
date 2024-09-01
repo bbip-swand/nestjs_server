@@ -1,15 +1,12 @@
-import { EntityManager } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { DataSource, EntityManager, QueryRunner } from 'typeorm';
 
+@Injectable()
 export class TransactionManager {
-  queryRunner;
-  dataSource;
+  private queryRunner: QueryRunner;
   jobs = [];
 
-  constructor(queryRunner?: any) {
-    if (queryRunner) {
-      this.queryRunner = queryRunner;
-    }
-  }
+  constructor(private readonly dataSource: DataSource) {}
 
   get manager(): EntityManager {
     if (!this.queryRunner) {

@@ -1,4 +1,4 @@
-import { Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import { Post, Body, Request } from '@nestjs/common';
 import { StudyCreateService } from './study-create.service';
 import { UpdateStudyCreateDto } from './dto/update-study-create.dto';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';

@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, QueryRunner } from 'typeorm';
 
-@Injectable()
 export class TransactionManager {
   private queryRunner: QueryRunner;
   jobs = [];

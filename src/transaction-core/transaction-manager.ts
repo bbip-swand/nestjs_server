@@ -10,7 +10,6 @@ export class TransactionManager {
       this.queryRunner = queryRunner;
     }
   }
-
   get manager(): EntityManager {
     if (!this.queryRunner) {
       throw new Error('transaction을 먼저 시작해야합니다.');

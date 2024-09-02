@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { typeOrmConfig } from './config/ormconfig';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
+import { StudyCreateModule } from './study-create/study-create.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TransactionCoreModule } from './transaction-core/transaction-core.modul
     }),
     AuthModule,
     TransactionCoreModule,
+    StudyCreateModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

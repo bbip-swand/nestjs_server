@@ -1,11 +1,15 @@
-import { DataSource, EntityManager, QueryRunner } from 'typeorm';
+import { EntityManager } from 'typeorm';
 
 export class TransactionManager {
-  private queryRunner: QueryRunner;
+  queryRunner;
+  dataSource;
   jobs = [];
 
-  constructor(private readonly dataSource: DataSource) {}
-
+  constructor(queryRunner?: any) {
+    if (queryRunner) {
+      this.queryRunner = queryRunner;
+    }
+  }
   get manager(): EntityManager {
     if (!this.queryRunner) {
       throw new Error('transaction을 먼저 시작해야합니다.');

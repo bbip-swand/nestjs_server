@@ -7,10 +7,10 @@ import { AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
 import { lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
+import { UserStatus } from 'src/models/common/enums';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
 import { TransactionCoreService } from 'src/transaction-core/transaction-core.service';
-import { TransactionManager } from 'src/transaction-core/transaction-manager';
 import { Repository } from 'typeorm';
 import { AppleSignupRequestDto } from './dto/apple-signup-request.dto';
 import { userInfoRequestDto } from './dto/user-info-request.dto';
@@ -50,7 +50,7 @@ export class UsersService {
 
   async appleSignup(
     dto: AppleSignupRequestDto,
-    transaction = new TransactionManager(),
+    // transaction = new TransactionManager(),
   ) {
     const user = await this.authService.verifyAppleToken(dto.identityToken);
 
@@ -73,6 +73,22 @@ export class UsersService {
       console.log('error', e);
       throw new HttpException('Apple Login Error', HttpStatus.BAD_REQUEST);
     });
+    const isExistUser = await this.findByAppleId(user.sub);
+    if (isExistUser) {
+      await this.usersRepository.update(isExistUser.dbUserId, {
+        appleId: user.sub,
+        refreshToken: response.refresh_token,
+        status: UserStatus.ACTIVE,
+      });
+      const newUser = await this.usersRepository.findOne({
+        where: { appleId: user.sub },
+      });
+      const payload = { sub: newUser.dbUserId, appleId: newUser.appleId };
+      return {
+        accessToken: this.jwtService.sign(payload),
+      };
+    }
+
     const newUser: User = await this.usersRepository.save({
       appleId: user.sub,
       refreshToken: response.refresh_token,
@@ -82,6 +98,29 @@ export class UsersService {
     return {
       accessToken: this.jwtService.sign(payload),
     };
+  }
+
+  async appleResign(user: User) {
+    const resignUser = await this.usersRepository.findOne({
+      where: { dbUserId: user.dbUserId },
+    });
+    const response: any = await lastValueFrom(
+      this.httpService
+        .post(
+          `https://appleid.apple.com/auth/revoke?token=${resignUser.refreshToken}&client_id=${this.configService.get('APPLE_CLIENT_ID')}&client_secret=${this.createAppleClientSecret()}&token_type_hint=refresh_token`,
+        )
+        .pipe(map((res: AxiosResponse<any>) => res.data)),
+    ).catch((e) => {
+      console.log('error', e);
+      throw new HttpException('Apple Resign Error', HttpStatus.BAD_REQUEST);
+    });
+
+    await this.usersRepository.update(resignUser.dbUserId, {
+      status: UserStatus.DELETED,
+    });
+    await this.userInfoRepository.delete({ dbUserId: user.dbUserId });
+
+    return { message: 'success' };
   }
 
   async createUserInfo(dto: userInfoRequestDto, user: User): Promise<UserInfo> {

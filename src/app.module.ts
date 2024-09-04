@@ -9,6 +9,7 @@ import { typeOrmConfig } from './config/ormconfig';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { StudyCreateModule } from './study-create/study-create.module';
+import { AwsS3Module } from './aws-s3/aws-s3.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { StudyCreateModule } from './study-create/study-create.module';
     AuthModule,
     TransactionCoreModule,
     StudyCreateModule,
+    AwsS3Module,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

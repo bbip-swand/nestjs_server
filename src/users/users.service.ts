@@ -117,6 +117,7 @@ export class UsersService {
 
     await this.usersRepository.update(resignUser.dbUserId, {
       status: UserStatus.DELETED,
+      isUserInfoGenerated: false,
     });
     await this.userInfoRepository.delete({ dbUserId: user.dbUserId });
 
@@ -140,6 +141,10 @@ export class UsersService {
       dbUserId: user.dbUserId,
       ...UserLocationInfo,
       ...filteredDto,
+    });
+
+    await this.usersRepository.update(user.dbUserId, {
+      isUserInfoGenerated: true,
     });
 
     return newUserInfo;

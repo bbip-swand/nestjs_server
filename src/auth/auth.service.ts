@@ -39,6 +39,7 @@ export class AuthService {
     const payload = { sub: user.dbUserId, appleId: user.appleId };
     return {
       accessToken: this.jwtService.sign(payload),
+      isUserInfoGenerated: user.isUserInfoGenerated,
     };
   }
 

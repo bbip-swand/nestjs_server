@@ -7,8 +7,8 @@ import {
 } from 'typeorm';
 import { UpdateDateEntity } from './base/update-date.entity';
 import { UserStatus } from './common/enums';
-import { UserInfo } from './user-info.entity';
 import { StudyInfo } from './study-info.entity';
+import { UserInfo } from './user-info.entity';
 
 @Entity({ name: 'user' })
 export class User extends UpdateDateEntity {
@@ -23,6 +23,9 @@ export class User extends UpdateDateEntity {
 
   @Column()
   refreshToken: string;
+
+  @Column({ nullable: false, default: false })
+  isUserInfoGenerated: boolean;
 
   @OneToOne(() => UserInfo, (userInfo) => userInfo.relUser)
   relUserInfo: UserInfo;

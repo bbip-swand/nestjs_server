@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -14,6 +15,10 @@ import { WeeklyStudyContent } from './weekly-study-content.entity';
 export class StudyInfo extends UpdateDateEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   dbStudyInfoId: number;
+
+  @Column({ unique: true })
+  @Generated('uuid')
+  studyId: string;
 
   @Column()
   studyName: string;
@@ -38,6 +43,9 @@ export class StudyInfo extends UpdateDateEntity {
 
   @Column()
   studyDescription: string;
+
+  @Column({ nullable: true })
+  studyInviteCode: string;
 
   @OneToMany(
     () => WeeklyStudyContent,

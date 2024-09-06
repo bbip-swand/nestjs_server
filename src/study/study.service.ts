@@ -5,7 +5,6 @@ import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { Repository } from 'typeorm';
 import { StudyInfoDto } from './dto/create-study.dto';
-import { UpdateStudyCreateDto } from './dto/update-study-create.dto';
 
 @Injectable()
 export class StudyService {
@@ -16,12 +15,31 @@ export class StudyService {
     private weeklyStudyContentRepository: Repository<WeeklyStudyContent>,
   ) {}
 
+  async findOne(studyId: string): Promise<StudyInfo> {
+    const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId },
+    });
+
+    const weeklyStudyContents: WeeklyStudyContent[] =
+      await this.weeklyStudyContentRepository.find({
+        where: { dbStudyInfoId: studyInfo.dbStudyInfoId },
+      });
+
+    const result = {
+      ...studyInfo,
+      studyContents: weeklyStudyContents.map(
+        (weeklyStudyContent) => weeklyStudyContent.content,
+      ),
+    };
+
+    return result;
+  }
+
   async createStudyInfo(
     createStudyCreateDto: StudyInfoDto,
     user: User,
   ): Promise<StudyInfo> {
     const { studyContents, ...studyInfo } = createStudyCreateDto;
-    // 트랜잭션 시작 - table이 2개이므로 all or nothing 처리
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
       dbUserId: user.dbUserId,
       ...studyInfo,
@@ -35,21 +53,5 @@ export class StudyService {
       });
     }
     return newStudyInfo;
-  }
-
-  findAll() {
-    return `This action returns all studyCreate`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} studyCreate`;
-  }
-
-  update(id: number, updateStudyCreateDto: UpdateStudyCreateDto) {
-    return `This action updates a #${id} studyCreate`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} studyCreate`;
   }
 }

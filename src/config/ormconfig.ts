@@ -11,7 +11,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   database: 'bbip_server',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   autoLoadEntities: true,
-  synchronize: true,
+  synchronize: false,
   migrationsTableName: 'migration_table',
   migrations: ['dist/src/migrations/*{.ts,.js}'],
 };

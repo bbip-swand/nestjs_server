@@ -37,7 +37,10 @@ export class UserInfo extends UpdateDateEntity {
   @Column({ nullable: true })
   occupation: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.relUserInfo, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId', referencedColumnName: 'dbUserId' })
   relUser: User;
 

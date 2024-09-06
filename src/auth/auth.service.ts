@@ -7,7 +7,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
-import { UserStatus } from 'src/models/common/enums';
 import { User } from 'src/models/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { AUTHORIZATION_TYPE } from './auth.types';
@@ -48,7 +47,7 @@ export class AuthService {
     const appleSubjectId = result.sub;
 
     const user = await this.usersService.findByAppleId(appleSubjectId);
-    if (!user || user.status == UserStatus.DELETED) {
+    if (!user) {
       throw new UnauthorizedException(AUTHORIZATION_TYPE.UNREGISTERED_USER);
     }
     const { refreshToken, ...userInfo } = user;

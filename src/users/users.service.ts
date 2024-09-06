@@ -7,7 +7,6 @@ import { AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
 import { lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
-import { UserStatus } from 'src/models/common/enums';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
 import { TransactionCoreService } from 'src/transaction-core/transaction-core.service';
@@ -78,7 +77,6 @@ export class UsersService {
       await this.usersRepository.update(isExistUser.dbUserId, {
         appleId: user.sub,
         refreshToken: response.refresh_token,
-        status: UserStatus.ACTIVE,
       });
       const newUser = await this.usersRepository.findOne({
         where: { appleId: user.sub },
@@ -115,11 +113,7 @@ export class UsersService {
       throw new HttpException('Apple Resign Error', HttpStatus.BAD_REQUEST);
     });
 
-    await this.usersRepository.update(resignUser.dbUserId, {
-      status: UserStatus.DELETED,
-      isUserInfoGenerated: false,
-    });
-    await this.userInfoRepository.delete({ dbUserId: user.dbUserId });
+    await this.usersRepository.delete({ dbUserId: user.dbUserId });
 
     return { message: 'success' };
   }

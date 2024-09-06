@@ -41,7 +41,7 @@ export class StudyService {
   ): Promise<StudyInfo> {
     const { studyContents, ...studyInfo } = createStudyCreateDto;
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
-      dbUserId: user.dbUserId,
+      studyLeaderId: user.dbUserId,
       ...studyInfo,
     });
     let week: number = 1;

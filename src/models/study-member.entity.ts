@@ -1,30 +1,39 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
-import { User } from './user.entity';
-import { StudyInfo } from './study-info.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { UpdateDateEntity } from './base/update-date.entity';
-import { UserRole } from './user.entity.types';
+import { StudyInfo } from './study-info.entity';
+import { User } from './user.entity';
 
 @Entity({ name: 'studymember' })
 export class StudyMember extends UpdateDateEntity {
-  //복합 기본키 설정 - 식별 관계
-  @PrimaryColumn()
-  userId: number;
+  @PrimaryGeneratedColumn({ name: 'id' })
+  dbStudyMemberId: number;
 
-  @PrimaryColumn()
-  studyId: number;
+  @PrimaryColumn({ name: 'userId' })
+  dbUserId: number;
 
-  @ManyToOne(() => User, (user) => user.relStudyMember)
+  @PrimaryColumn({ name: 'studyId' })
+  dbStudyInfoId: number;
+
+  @ManyToOne(() => User, (user) => user.relStudyMember, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId', referencedColumnName: 'dbUserId' })
   relUser: User;
 
-  @ManyToOne(() => StudyInfo, (study) => study.relStudyMember)
-  relStudyInfo: StudyInfo;
-
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: 'member',
+  @ManyToOne(() => StudyInfo, (study) => study.relStudyMember, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
-  role: UserRole;
+  @JoinColumn({ name: 'studyId', referencedColumnName: 'dbStudyInfoId' })
+  relStudyInfo: StudyInfo;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   joinedAt: Date;

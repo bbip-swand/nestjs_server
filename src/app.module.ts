@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { typeOrmConfig } from './config/ormconfig';
 import { FirebaseModule } from './firebase/firebase.module';
-import { StudyCreateModule } from './study-create/study-create.module';
+import { StudyModule } from './study/study.module';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
 
@@ -21,7 +21,7 @@ import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
     }),
     AuthModule,
     TransactionCoreModule,
-    StudyCreateModule,
+    StudyModule,
     AwsS3Module,
     FirebaseModule,
   ],

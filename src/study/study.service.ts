@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateStudyCreateDto } from './dto/update-study-create.dto';
-import { User } from 'src/models/user.entity';
-import { StudyInfoDto } from './dto/create-study.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudyInfo } from 'src/models/study-info.entity';
-import { Repository } from 'typeorm';
+import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
+import { Repository } from 'typeorm';
+import { StudyInfoDto } from './dto/create-study.dto';
+import { UpdateStudyCreateDto } from './dto/update-study-create.dto';
 
 @Injectable()
-export class StudyCreateService {
+export class StudyService {
   constructor(
     @InjectRepository(StudyInfo)
     private studyInfoRepository: Repository<StudyInfo>,

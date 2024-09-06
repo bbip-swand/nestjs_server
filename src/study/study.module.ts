@@ -1,14 +1,14 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { StudyCreateService } from './study-create.service';
-import { StudyCreateController } from './study-create.controller';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from 'src/auth/auth.module';
+import { jwtConstants } from 'src/auth/constants';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
-import { UsersModule } from 'src/users/users.module';
-import { AuthModule } from 'src/auth/auth.module';
 import { TransactionCoreModule } from 'src/transaction-core/transaction-core.module';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/auth/constants';
+import { UsersModule } from 'src/users/users.module';
+import { StudyController } from './study.controller';
+import { StudyService } from './study.service';
 
 @Module({
   imports: [
@@ -20,8 +20,8 @@ import { jwtConstants } from 'src/auth/constants';
       secret: jwtConstants.secret,
     }),
   ],
-  controllers: [StudyCreateController],
-  providers: [StudyCreateService],
-  exports: [StudyCreateService],
+  controllers: [StudyController],
+  providers: [StudyService],
+  exports: [StudyService],
 })
-export class StudyCreateModule {}
+export class StudyModule {}

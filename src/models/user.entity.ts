@@ -9,6 +9,7 @@ import { UpdateDateEntity } from './base/update-date.entity';
 import { UserStatus } from './common/enums';
 import { StudyInfo } from './study-info.entity';
 import { UserInfo } from './user-info.entity';
+import { StudyMember } from './study-member.entity';
 
 @Entity({ name: 'user' })
 export class User extends UpdateDateEntity {
@@ -30,9 +31,9 @@ export class User extends UpdateDateEntity {
   @OneToOne(() => UserInfo, (userInfo) => userInfo.relUser)
   relUserInfo: UserInfo;
 
-  @OneToMany(() => StudyInfo, (studyInfo) => studyInfo.relUser, {
+  @OneToMany(() => StudyMember, (studyMember) => studyMember.relUser, {
     cascade: true,
     eager: true, // eager: true를 설정하면 User를 select할 때 StudyInfo도 같이 select된다.
   })
-  relStudyInfo: StudyInfo[];
+  relStudyMember: StudyInfo[];
 }

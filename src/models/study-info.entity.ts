@@ -2,14 +2,12 @@ import {
   Column,
   Entity,
   Generated,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UpdateDateEntity } from './base/update-date.entity';
-import { User } from './user.entity';
 import { WeeklyStudyContent } from './weekly-study-content.entity';
+import { StudyMember } from './study-member.entity';
 
 @Entity({ name: 'study_info' })
 export class StudyInfo extends UpdateDateEntity {
@@ -47,18 +45,14 @@ export class StudyInfo extends UpdateDateEntity {
   @Column({ nullable: true })
   studyInviteCode: string;
 
+  @OneToMany(() => StudyMember, (studyMember) => studyMember.relStudyInfo)
+  relStudyMember: StudyMember[];
+
   @OneToMany(
     () => WeeklyStudyContent,
     (weeklyStudyContent) => weeklyStudyContent.relStudyInfo,
   )
   relWeeklyStudyContent: WeeklyStudyContent[];
-
-  @ManyToOne(() => User, (user) => user.relStudyInfo, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'userId', referencedColumnName: 'dbUserId' })
-  relUser: User;
 
   @Column({ name: 'userId' })
   dbUserId: number;

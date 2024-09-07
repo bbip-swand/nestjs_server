@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { User } from 'src/models/user.entity';
@@ -19,6 +19,9 @@ export class StudyService {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyId },
     });
+    if (!studyInfo) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
 
     const weeklyStudyContents: WeeklyStudyContent[] =
       await this.weeklyStudyContentRepository.find({
@@ -35,6 +38,26 @@ export class StudyService {
     return result;
   }
 
+  async findByInviteCode(inviteCode: string): Promise<StudyInfo> {
+    const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
+      where: { studyInviteCode: inviteCode },
+    });
+    if (!studyInfo) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    const weeklyStudyContents: WeeklyStudyContent[] =
+      await this.weeklyStudyContentRepository.find({
+        where: { dbStudyInfoId: studyInfo.dbStudyInfoId },
+      });
+    const result = {
+      ...studyInfo,
+      studyContents: weeklyStudyContents.map(
+        (weeklyStudyContent) => weeklyStudyContent.content,
+      ),
+    };
+    return result;
+  }
+
   async createStudyInfo(
     createStudyCreateDto: StudyInfoDto,
     user: User,
@@ -45,6 +68,9 @@ export class StudyService {
       ...studyInfo,
     });
     let week: number = 1;
+    if (studyContents.length !== studyInfo.totalWeeks) {
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    }
     for (const studyContent of studyContents) {
       await this.weeklyStudyContentRepository.save({
         dbStudyInfoId: newStudyInfo.dbStudyInfoId,

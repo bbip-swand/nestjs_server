@@ -44,7 +44,7 @@ export class UsersController {
     return result;
   }
 
-  @Put('info')
+  @Put('update/info')
   @ApiOperation({ summary: '유저 정보 수정' })
   @RestMethod({
     request: userInfoRequestDto,

@@ -11,8 +11,8 @@ export class StudyInfoDto {
   studyImageUrl: string;
 
   @Expose()
-  @ApiProperty({ description: '스터디 분야', type: String })
-  studyField: string;
+  @ApiProperty({ description: '스터디 분야', type: Number })
+  studyField: number;
 
   @Expose()
   @ApiProperty({ description: '총 진행 주차', type: Number })

@@ -28,7 +28,7 @@ export class StudyInfo extends UpdateDateEntity {
   studyImageUrl: string;
 
   @Column()
-  studyField: string;
+  studyField: number;
 
   @Column()
   totalWeeks: number;

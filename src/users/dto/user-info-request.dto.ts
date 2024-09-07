@@ -18,12 +18,12 @@ export class userInfoRequestDto {
   location?: string[];
 
   @Expose()
-  @ApiProperty({ type: String })
-  interest?: string;
+  @ApiProperty({ type: Number, isArray: true })
+  interest?: number[];
 
   @Expose()
-  @ApiProperty({ type: String })
-  occupation?: string;
+  @ApiProperty({ type: Number })
+  occupation?: number;
 
   @Expose()
   @ApiProperty({ type: Number })

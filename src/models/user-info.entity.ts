@@ -28,14 +28,14 @@ export class UserInfo extends UpdateDateEntity {
   @Column({ nullable: true })
   location3: string;
 
-  @Column({ nullable: true })
-  interest: string;
+  @Column({ nullable: true, type: 'simple-array' })
+  interest: number[];
 
   @Column({ nullable: true })
   birthYear: number;
 
   @Column({ nullable: true })
-  occupation: string;
+  occupation: number;
 
   @OneToOne(() => User, (user) => user.relUserInfo, {
     onDelete: 'CASCADE',

@@ -118,7 +118,7 @@ export class UsersService {
     return { message: 'success' };
   }
 
-  async getUserInfo(user: User): Promise<UserInfo> {
+  async getUserInfo(user: User) {
     const userInfo = await this.userInfoRepository.findOne({
       where: { dbUserId: user.dbUserId },
     });
@@ -126,8 +126,14 @@ export class UsersService {
     if (!userInfo) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
+    const { location1, location2, location3, ...filteredUserInfo } = userInfo;
+    const location = [location1, location2, location3].filter((v) => v);
+    const result = {
+      ...filteredUserInfo,
+      location,
+    };
 
-    return userInfo;
+    return result;
   }
 
   async createUserInfo(dto: userInfoRequestDto, user: User): Promise<UserInfo> {

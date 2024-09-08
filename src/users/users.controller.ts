@@ -1,4 +1,4 @@
-import { Body, Post, Put, Request } from '@nestjs/common';
+import { Body, Get, Post, Put, Request } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
@@ -34,7 +34,14 @@ export class UsersController {
     return result;
   }
 
-  @Post('info')
+  @Get('info')
+  @ApiOperation({ summary: '유저 정보 조회' })
+  async getUserInfo(@Request() req) {
+    const result = await this.usersService.getUserInfo(req.user);
+    return result;
+  }
+
+  @Post('create/info')
   @ApiOperation({ summary: '유저 정보 생성' })
   @RestMethod({
     request: userInfoRequestDto,

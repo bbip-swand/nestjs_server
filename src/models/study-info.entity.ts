@@ -24,7 +24,7 @@ export class StudyInfo extends UpdateDateEntity {
   @Column()
   studyName: string;
 
-  @Column()
+  @Column({ nullable: true })
   studyImageUrl: string;
 
   @Column()

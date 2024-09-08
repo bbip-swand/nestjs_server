@@ -126,10 +126,18 @@ export class UsersService {
     if (!userInfo) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    const { location1, location2, location3, ...filteredUserInfo } = userInfo;
+    const { location1, location2, location3, interest, ...filteredUserInfo } =
+      userInfo;
     const location = [location1, location2, location3].filter((v) => v);
+
+    delete filteredUserInfo.dbUserId;
+    delete filteredUserInfo.dbUserInfoId;
+    delete filteredUserInfo.createdAt;
+    delete filteredUserInfo.updatedAt;
+
     const result = {
       ...filteredUserInfo,
+      interest: interest.map((v) => +v),
       location,
     };
 

@@ -1,4 +1,4 @@
-import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 // import { LocalAuthGuard } from 'src/utils/guards/local-auth.guard';
@@ -22,8 +22,11 @@ export class AuthController {
     request: AppleLoginRequestDto,
     response: AppleLoginResponseDto,
   })
-  async appleLogin(@Request() req): Promise<AppleLoginResponseDto> {
-    const result = await this.authService.appleLogin(req.user);
+  async appleLogin(
+    @Body() dto: AppleLoginRequestDto,
+    @Request() req,
+  ): Promise<AppleLoginResponseDto> {
+    const result = await this.authService.appleLogin(dto, req.user);
     return result;
   }
 }

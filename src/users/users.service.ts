@@ -72,30 +72,21 @@ export class UsersService {
       console.log('error', e);
       throw new HttpException('Apple Login Error', HttpStatus.BAD_REQUEST);
     });
-    const isExistUser = await this.findByAppleId(user.sub);
-    if (isExistUser) {
-      await this.usersRepository.update(isExistUser.dbUserId, {
-        appleId: user.sub,
-        refreshToken: response.refresh_token,
-      });
-      const newUser = await this.usersRepository.findOne({
-        where: { appleId: user.sub },
-      });
-      const payload = { sub: newUser.dbUserId, appleId: newUser.appleId };
-      return {
-        accessToken: this.jwtService.sign(payload),
-      };
-    }
 
     const newUser: User = await this.usersRepository.save({
       appleId: user.sub,
       refreshToken: response.refresh_token,
+      fcmToken: dto.fcmToken,
     });
 
     const payload = { sub: newUser.dbUserId, appleId: newUser.appleId };
     return {
       accessToken: this.jwtService.sign(payload),
     };
+  }
+
+  async updateFcmToken(dbUserId: number, fcmToken: string) {
+    await this.usersRepository.update(dbUserId, { fcmToken });
   }
 
   async appleResign(user: User) {

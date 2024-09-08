@@ -10,6 +10,7 @@ import { JwksClient } from 'jwks-rsa';
 import { User } from 'src/models/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { AUTHORIZATION_TYPE } from './auth.types';
+import { AppleLoginRequestDto } from './dto/apple-login-request.dto';
 
 interface AppleJwtTokenPayload {
   iss: string;
@@ -34,8 +35,12 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async appleLogin(user: Partial<User>) {
+  async appleLogin(dto: AppleLoginRequestDto, user: Partial<User>) {
     const payload = { sub: user.dbUserId, appleId: user.appleId };
+    const fcmToken = dto.fcmToken;
+    if (fcmToken) {
+      await this.usersService.updateFcmToken(user.dbUserId, fcmToken);
+    }
     return {
       accessToken: this.jwtService.sign(payload),
       isUserInfoGenerated: user.isUserInfoGenerated,

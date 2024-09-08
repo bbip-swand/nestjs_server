@@ -5,4 +5,8 @@ export class AppleLoginRequestDto {
   @Expose()
   @ApiProperty({ type: String })
   readonly identityToken: string;
+
+  @Expose()
+  @ApiProperty({ type: String })
+  readonly fcmToken: string;
 }

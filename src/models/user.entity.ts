@@ -18,6 +18,9 @@ export class User extends UpdateDateEntity {
   @Column({ nullable: true, unique: true })
   appleId: string;
 
+  @Column({ nullable: true, unique: true })
+  fcmToken: string;
+
   @Column()
   refreshToken: string;
 

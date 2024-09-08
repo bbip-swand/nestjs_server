@@ -63,6 +63,9 @@ export class StudyService {
     user: User,
   ): Promise<StudyInfo> {
     const { studyContents, ...studyInfo } = createStudyCreateDto;
+    if (!studyInfo.studyImageUrl || studyInfo.studyImageUrl === '') {
+      studyInfo.studyImageUrl = null;
+    }
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
       studyLeaderId: user.dbUserId,
       ...studyInfo,

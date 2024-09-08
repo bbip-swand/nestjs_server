@@ -168,6 +168,9 @@ export class UsersService {
       location2: location[1],
       location3: location[2],
     };
+    if (!filteredDto.profileImageUrl || filteredDto.profileImageUrl === '') {
+      filteredDto.profileImageUrl = null;
+    }
 
     for (const key in UserLocationInfo) {
       if (!UserLocationInfo[key]) {

@@ -9,10 +9,11 @@ import { TransactionCoreModule } from 'src/transaction-core/transaction-core.mod
 import { UsersModule } from 'src/users/users.module';
 import { StudyController } from './study.controller';
 import { StudyService } from './study.service';
+import { StudyMember } from 'src/models/study-member.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([StudyInfo, WeeklyStudyContent]),
+    TypeOrmModule.forFeature([StudyInfo, WeeklyStudyContent, StudyMember]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     forwardRef(() => TransactionCoreModule),

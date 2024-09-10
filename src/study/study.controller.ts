@@ -42,4 +42,10 @@ export class StudyController {
     // eslint-disable-next-line prettier/prettier
     return this.studyService.createStudyInfo(studyInfoDto, req.user);
   }
+
+  @Post('/join/:inviteCode')
+  @ApiOperation({ summary: '스터디 참여' })
+  joinStudy(@Param('inviteCode') inviteCode: string, @Request() req) {
+    return this.studyService.joinStudy(inviteCode, req.user);
+  }
 }

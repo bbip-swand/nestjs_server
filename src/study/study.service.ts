@@ -87,17 +87,16 @@ export class StudyService {
     return newStudyInfo;
   }
 
-  async joinStudy(inviteCode: string, user: any) {
+  async joinStudy(studyId: string, user: any) {
     const studyinfo: StudyInfo = await this.studyInfoRepository.findOne({
-      where: { studyInviteCode: inviteCode },
+      where: { studyId: studyId },
     });
     if (!studyinfo) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    const studyId = studyinfo.dbStudyInfoId;
     const studyMember = await this.studyMemberRepository.save({
       dbUserId: user.dbUserId,
-      dbStudyInfoId: studyId,
+      dbStudyInfoId: studyinfo.dbStudyInfoId,
     });
     return studyMember;
   }

@@ -43,9 +43,9 @@ export class StudyController {
     return this.studyService.createStudyInfo(studyInfoDto, req.user);
   }
 
-  @Post('/join/:inviteCode')
+  @Post('/join/:studyId')
   @ApiOperation({ summary: '스터디 참여' })
-  joinStudy(@Param('inviteCode') inviteCode: string, @Request() req) {
-    return this.studyService.joinStudy(inviteCode, req.user);
+  joinStudy(@Param('studyId') studyId: string, @Request() req) {
+    return this.studyService.joinStudy(studyId, req.user);
   }
 }

@@ -11,6 +11,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { StudyModule } from './study/study.module';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
     StudyModule,
     AwsS3Module,
     FirebaseModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

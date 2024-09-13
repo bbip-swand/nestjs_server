@@ -5,6 +5,7 @@ import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { Repository } from 'typeorm';
 import { StudyInfoDto } from './dto/create-study.dto';
+import { StudyMember } from 'src/models/study-member.entity';
 
 @Injectable()
 export class StudyService {
@@ -13,6 +14,8 @@ export class StudyService {
     private studyInfoRepository: Repository<StudyInfo>,
     @InjectRepository(WeeklyStudyContent)
     private weeklyStudyContentRepository: Repository<WeeklyStudyContent>,
+    @InjectRepository(StudyMember)
+    private studyMemberRepository: Repository<StudyMember>,
   ) {}
 
   async findOne(studyId: string): Promise<StudyInfo> {
@@ -82,5 +85,19 @@ export class StudyService {
       });
     }
     return newStudyInfo;
+  }
+
+  async joinStudy(studyId: string, user: any) {
+    const studyinfo: StudyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId: studyId },
+    });
+    if (!studyinfo) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    const studyMember = await this.studyMemberRepository.save({
+      dbUserId: user.dbUserId,
+      dbStudyInfoId: studyinfo.dbStudyInfoId,
+    });
+    return studyMember;
   }
 }

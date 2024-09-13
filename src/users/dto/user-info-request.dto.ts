@@ -14,6 +14,7 @@ export class userInfoRequestDto {
   @ApiProperty({
     type: [String],
     description: 'Array of locations in the format [도, 시, 구]',
+    example: ['경기도', '수원시', '영통구'],
   })
   location?: string[];
 

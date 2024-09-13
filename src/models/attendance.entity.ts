@@ -18,6 +18,7 @@ export class Attendance extends CreateDateEntity {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([
+    { name: 'studyMemberId', referencedColumnName: 'dbStudyMemberId' },
     { name: 'userId', referencedColumnName: 'dbUserId' },
     { name: 'studyId', referencedColumnName: 'dbStudyInfoId' },
   ])
@@ -28,6 +29,9 @@ export class Attendance extends CreateDateEntity {
 
   @Column({ name: 'studyId' })
   dbStudyInfoId: number;
+
+  @Column({ name: 'studyMemberId' })
+  dbStudyMemberId: number;
 
   @Column({ type: 'int' })
   week: number;

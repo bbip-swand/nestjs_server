@@ -89,9 +89,15 @@ export class AttendanceService {
     if (attendanceInfo.code !== applyAttendanceDto.code) {
       throw new HttpException('Invalid Code', HttpStatus.UNAUTHORIZED); //인증 실패
     } else if (attendanceInfo.code === applyAttendanceDto.code) {
+      const studyInfo = await this.studyMemberRepository.findOne({
+        where: {
+          dbStudyInfoId: attendanceInfo.dbStudyInfoId,
+        },
+      });
       await this.attendanceRepository.save({
         dbUserId: user.dbUserId,
         dbStudyInfoId: attendanceInfo.dbStudyInfoId,
+        dbStudyMemberId: studyInfo.dbStudyMemberId,
         week: attendanceInfo.week,
         status: 'ATTENDED',
       });

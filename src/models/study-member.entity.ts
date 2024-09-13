@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UpdateDateEntity } from './base/update-date.entity';
 import { StudyInfo } from './study-info.entity';
@@ -13,8 +14,8 @@ import { Attendance } from './attendance.entity';
 
 @Entity({ name: 'study_member' })
 export class StudyMember extends UpdateDateEntity {
-  // @PrimaryGeneratedColumn({ name: 'id' })
-  // dbStudyMemberId: number;
+  @PrimaryGeneratedColumn({ name: 'id' })
+  dbStudyMemberId: number;
 
   @PrimaryColumn({ name: 'userId' })
   dbUserId: number;

@@ -10,7 +10,7 @@ import { UpdateDateEntity } from './base/update-date.entity';
 import { StudyInfo } from './study-info.entity';
 import { User } from './user.entity';
 
-@Entity({ name: 'studymember' })
+@Entity({ name: 'study_member' })
 export class StudyMember extends UpdateDateEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   dbStudyMemberId: number;

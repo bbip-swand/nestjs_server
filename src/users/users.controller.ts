@@ -42,7 +42,10 @@ export class UsersController {
   }
 
   @Post('create/info')
-  @ApiOperation({ summary: '유저 정보 생성' })
+  @ApiOperation({
+    summary: '유저 정보 생성',
+    description: 'location이 2개만 온다면, 2개만 보내도 됨(null 필요 x)',
+  })
   @RestMethod({
     request: userInfoRequestDto,
   })
@@ -52,7 +55,10 @@ export class UsersController {
   }
 
   @Put('update/info')
-  @ApiOperation({ summary: '유저 정보 수정' })
+  @ApiOperation({
+    summary: '유저 정보 수정',
+    description: 'location이 2개만 온다면, 2개만 보내도 됨(null 필요 x)',
+  })
   @RestMethod({
     request: userInfoRequestDto,
   })

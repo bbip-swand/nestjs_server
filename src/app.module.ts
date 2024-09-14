@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -11,6 +11,10 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { StudyModule } from './study/study.module';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
+import { AttendanceModule } from './attendance/attendance.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+import { RedisClientOptions } from 'redis';
 
 @Module({
   imports: [
@@ -19,11 +23,24 @@ import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
       cache: true,
       isGlobal: true,
     }),
+    CacheModule.registerAsync<RedisClientOptions>({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
+        db: configService.get('REDIS_DB'),
+        ttl: configService.get('REDIS_DEFAULT_TTL'),
+      }),
+    }),
     AuthModule,
     TransactionCoreModule,
     StudyModule,
     AwsS3Module,
     FirebaseModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

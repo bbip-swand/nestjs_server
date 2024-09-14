@@ -27,9 +27,7 @@ export class AttendanceService {
     private studyMemberRepository: Repository<StudyMember>,
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>,
-  ) {
-    // console.log(this.cacheManger.store);
-  }
+  ) {}
 
   async createAttendance(createAttendanceDto: CreateAttendanceDto, user: User) {
     const studyInfo = await this.studyInfoRepository.findOne({

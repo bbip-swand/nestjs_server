@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { typeOrmConfig } from './config/ormconfig';
 import { FirebaseModule } from './firebase/firebase.module';
+import { PostingModule } from './posting/posting.module';
 import { StudyModule } from './study/study.module';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { UsersModule } from './users/users.module';
@@ -44,6 +45,7 @@ const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
     AwsS3Module,
     FirebaseModule,
     AttendanceModule,
+    PostingModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

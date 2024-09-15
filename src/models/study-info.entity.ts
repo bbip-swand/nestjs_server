@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UpdateDateEntity } from './base/update-date.entity';
+import { Posting } from './posting.entity';
 import { StudyMember } from './study-member.entity';
 import { User } from './user.entity';
 import { WeeklyStudyContent } from './weekly-study-content.entity';
@@ -62,6 +63,9 @@ export class StudyInfo extends UpdateDateEntity {
     (weeklyStudyContent) => weeklyStudyContent.relStudyInfo,
   )
   relWeeklyStudyContent: WeeklyStudyContent[];
+
+  @OneToMany(() => Posting, (posting) => posting.relStudyInfo)
+  relPosting: Posting[];
 
   @ManyToOne(() => User, (user) => user.relStudyInfo, {
     onDelete: 'SET NULL',

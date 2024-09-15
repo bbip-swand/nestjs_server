@@ -7,6 +7,6 @@ export class CreateAttendanceDto {
   readonly studyId: string;
 
   @Expose()
-  @ApiProperty({ type: Number, description: '출석 주차' })
-  readonly week: number;
+  @ApiProperty({ type: Number, description: '출석 회차' })
+  readonly session: number;
 }

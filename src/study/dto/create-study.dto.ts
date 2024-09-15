@@ -48,9 +48,9 @@ export class StudyInfoDto {
 
   @Expose()
   @ApiProperty({
-    description: '스터디 주차별 내용',
+    description: '스터디 회차별 내용',
     type: [String],
-    example: ['1주차 내용', '2주차 내용', '3주차 내용'],
+    example: ['1회차 내용', '2회차 내용', '3회차 내용'],
   })
   studyContents: string[];
 }

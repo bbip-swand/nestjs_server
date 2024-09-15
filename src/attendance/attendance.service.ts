@@ -10,7 +10,7 @@ import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
 import { Attendance } from 'src/models/attendance.entity';
 
 interface AttendanceInfo {
-  week: number;
+  session: number;
   code: number;
   startTime: string;
   ttl: number;
@@ -35,7 +35,20 @@ export class AttendanceService {
         studyId: createAttendanceDto.studyId,
       },
     });
-
+    const studyMembers = await this.studyMemberRepository.find({
+      where: {
+        dbStudyInfoId: studyInfo?.dbStudyInfoId,
+      },
+    });
+    //모든 스터디 멤버들의 출결 상황 ABSENT로 초기화
+    for (const studyMember of studyMembers) {
+      await this.attendanceRepository.save({
+        dbUserId: studyMember.dbUserId,
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+        dbStudyMemberId: studyMember.dbStudyMemberId,
+        session: createAttendanceDto.session,
+      });
+    }
     if (!studyInfo) {
       throw new HttpException('Study Info Found', HttpStatus.NOT_FOUND);
     }
@@ -51,9 +64,9 @@ export class AttendanceService {
       timeZone: 'Asia/Seoul',
     });
     const authCode = this.generateAuthCode();
-
+    //해당 스터디의 스터디원들의 현재 주차의 출석을 결석으로 생성
     return await this.cacheManager.set(key, {
-      week: createAttendanceDto.week,
+      session: createAttendanceDto.session,
       code: authCode,
       startTime: currentTimeKST,
       ttl: 600,
@@ -92,13 +105,17 @@ export class AttendanceService {
           dbStudyInfoId: attendanceInfo.dbStudyInfoId,
         },
       });
-      await this.attendanceRepository.save({
-        dbUserId: user.dbUserId,
-        dbStudyInfoId: attendanceInfo.dbStudyInfoId,
-        dbStudyMemberId: studyInfo.dbStudyMemberId,
-        week: attendanceInfo.week,
-        status: 'ATTENDED',
-      });
+      //해당 스터디원의 해당 회차의 출석을 출석으로 변경
+      await this.attendanceRepository.update(
+        {
+          dbUserId: user.dbUserId,
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          session: attendanceInfo.session,
+        },
+        {
+          status: 'ATTENDED',
+        },
+      );
       return { message: 'Success' };
     }
   }

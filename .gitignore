@@ -40,4 +40,5 @@ rds-combined-ca-bundle.pem
 .serverless
 .build
 
-.env
+.env.development
+.env.production

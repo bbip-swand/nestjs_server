@@ -182,6 +182,7 @@ export class StudyService {
     await this.studyMemberRepository.save({
       dbUserId: user.dbUserId,
       dbStudyInfoId: newStudyInfo.dbStudyInfoId,
+      isManager: true,
     });
     return newStudyInfo;
   }

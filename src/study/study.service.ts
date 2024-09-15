@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudyInfo } from 'src/models/study-info.entity';
+import { StudyMember } from 'src/models/study-member.entity';
 import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { Repository } from 'typeorm';
 import { StudyInfoDto } from './dto/create-study.dto';
-import { StudyMember } from 'src/models/study-member.entity';
 
 @Injectable()
 export class StudyService {
@@ -69,14 +69,24 @@ export class StudyService {
     if (!studyInfo.studyImageUrl || studyInfo.studyImageUrl === '') {
       studyInfo.studyImageUrl = null;
     }
+    if (
+      studyInfo.daysOfWeek.length === 0 ||
+      studyInfo.studyTimes.length === 0 ||
+      studyInfo.daysOfWeek.length !== studyInfo.studyTimes.length
+    ) {
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    }
+    if (studyInfo.totalWeeks === 0 || studyInfo.totalWeeks > 52) {
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    }
+    if (studyContents.length !== studyInfo.totalWeeks) {
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    }
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
       studyLeaderId: user.dbUserId,
       ...studyInfo,
     });
     let session: number = 1;
-    if (studyContents.length !== studyInfo.totalWeeks) {
-      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
-    }
     for (const studyContent of studyContents) {
       await this.weeklyStudyContentRepository.save({
         dbStudyInfoId: newStudyInfo.dbStudyInfoId,

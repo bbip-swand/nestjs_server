@@ -39,8 +39,14 @@ export class StudyInfo extends UpdateDateEntity {
   @Column({ type: 'date' })
   studyEndDate: Date;
 
-  @Column('simple-array')
-  daysOfWeek: string[]; //진행 요일
+  @Column({ type: 'simple-array' })
+  daysOfWeek: number[];
+
+  @Column({ type: 'simple-json' })
+  studyTimes: {
+    startTime: string;
+    endTime: string;
+  }[];
 
   @Column()
   studyDescription: string;

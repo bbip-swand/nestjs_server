@@ -36,7 +36,7 @@ export class StudyInfoDto {
   @ApiProperty({
     description: '스터디 시작 날짜',
     type: Date,
-    example: '2024-08-12',
+    example: '2024-09-01',
   })
   studyStartDate: Date;
 
@@ -44,7 +44,7 @@ export class StudyInfoDto {
   @ApiProperty({
     description: '스터디 끝나는 날짜',
     type: Date,
-    example: '2024-10-12',
+    example: '2024-09-28',
   })
   studyEndDate: Date;
 
@@ -81,7 +81,7 @@ export class StudyInfoDto {
   @ApiProperty({
     description: '스터디 회차별 내용',
     type: [String],
-    example: ['1회차 내용', '2회차 내용', '3회차 내용'],
+    example: ['1주차 내용', '2주차 내용', '3주차 내용'],
   })
   studyContents: string[];
 }

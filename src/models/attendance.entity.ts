@@ -34,7 +34,7 @@ export class Attendance extends CreateDateEntity {
   dbStudyMemberId: number;
 
   @Column({ type: 'int' })
-  week: number;
+  session: number;
 
   @Column({
     type: 'enum',

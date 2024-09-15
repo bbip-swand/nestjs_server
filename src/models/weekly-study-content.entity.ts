@@ -15,7 +15,7 @@ export class WeeklyStudyContent extends UpdateDateEntity {
   dbWeeklyContentId: number;
 
   @Column()
-  week: number;
+  session: number;
 
   @Column()
   content: string;

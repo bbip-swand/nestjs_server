@@ -73,14 +73,14 @@ export class StudyService {
       studyLeaderId: user.dbUserId,
       ...studyInfo,
     });
-    let week: number = 1;
+    let session: number = 1;
     if (studyContents.length !== studyInfo.totalWeeks) {
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
     }
     for (const studyContent of studyContents) {
       await this.weeklyStudyContentRepository.save({
         dbStudyInfoId: newStudyInfo.dbStudyInfoId,
-        week: week++,
+        session: session++,
         content: studyContent,
       });
     }

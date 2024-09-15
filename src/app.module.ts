@@ -29,7 +29,7 @@ import { RedisClientOptions } from 'redis';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         store: redisStore,
-        host: configService.get('REDIS_HOST'),
+        host: configService.get('REDIS_HOST_LOCAL'),
         port: configService.get('REDIS_PORT'),
         db: configService.get('REDIS_DB'),
         ttl: configService.get('REDIS_DEFAULT_TTL'),

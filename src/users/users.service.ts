@@ -136,6 +136,13 @@ export class UsersService {
   }
 
   async createUserInfo(dto: userInfoRequestDto, user: User): Promise<UserInfo> {
+    const userInfo = await this.userInfoRepository.findOne({
+      where: { dbUserId: user.dbUserId },
+    });
+    if (userInfo) {
+      throw new HttpException('Already Exist', HttpStatus.BAD_REQUEST);
+    }
+
     const { location, ...filteredDto } = dto;
     const UserLocationInfo = {
       location1: location[0],

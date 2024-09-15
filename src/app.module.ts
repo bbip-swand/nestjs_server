@@ -31,7 +31,7 @@ const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         store: redisStore,
-        host: configService.get('REDIS_HOST_LOCAL'),
+        host: configService.get('REDIS_HOST'),
         port: configService.get('REDIS_PORT'),
         db: configService.get('REDIS_DB'),
         ttl: configService.get('REDIS_DEFAULT_TTL'),

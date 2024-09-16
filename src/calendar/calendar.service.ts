@@ -28,15 +28,24 @@ export class CalendarService {
 
     const schedules = await this.calendarRepository.find({
       where: { dbStudyInfoId: In(studyIds) },
-      order: { startDate: 'DESC' },
+      order: { startDate: 'ASC' }, // 임박한 일정부터 오름차순으로 정렬
     });
-    if (!schedules) {
+
+    if (!schedules || schedules.length === 0) {
       throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
     }
-    const filteredSchedules = schedules.filter((schedule) => {
-      return schedule.isHomeView === true; // 일정 홈 뷰에 표시되는 것만 필터링
-    });
-    filteredSchedules.slice(0, 10);
+
+    const now = new Date();
+    const filteredSchedules = schedules
+      .filter((schedule) => {
+        return (
+          schedule.isHomeView === true &&
+          now >= schedule.startDate &&
+          now <= schedule.endDate // 현재 시간이 startDate와 endDate 사이에 있는 일정 필터링
+        );
+      })
+      .slice(0, 10);
+
     return filteredSchedules;
   }
 

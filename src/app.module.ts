@@ -17,6 +17,7 @@ import { StudyModule } from './study/study.module';
 import { TransactionCoreModule } from './transaction-core/transaction-core.module';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
+import { CalendarModule } from './calendar/calendar.module';
 
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 @Module({
@@ -45,6 +46,7 @@ const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
     AwsS3Module,
     FirebaseModule,
     AttendanceModule,
+    CalendarModule,
     PostingModule,
   ],
   controllers: [AppController],

@@ -12,6 +12,7 @@ import { Posting } from './posting.entity';
 import { StudyMember } from './study-member.entity';
 import { User } from './user.entity';
 import { WeeklyStudyContent } from './weekly-study-content.entity';
+import { Calendar } from './calendar.entity';
 
 @Entity({ name: 'study_info' })
 export class StudyInfo extends UpdateDateEntity {
@@ -66,6 +67,9 @@ export class StudyInfo extends UpdateDateEntity {
 
   @OneToMany(() => Posting, (posting) => posting.relStudyInfo)
   relPosting: Posting[];
+
+  @OneToMany(() => Calendar, (calendar) => calendar.relstudyInfo)
+  relCalendar: Calendar[];
 
   @ManyToOne(() => User, (user) => user.relStudyInfo, {
     onDelete: 'SET NULL',

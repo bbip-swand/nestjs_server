@@ -28,6 +28,9 @@ export class StudyMember extends UpdateDateEntity {
   @Column({ default: false })
   isManager: boolean;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  joinedAt: Date;
+
   @ManyToOne(() => User, (user) => user.relStudyMember, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -41,9 +44,6 @@ export class StudyMember extends UpdateDateEntity {
   })
   @JoinColumn({ name: 'studyId', referencedColumnName: 'dbStudyInfoId' })
   relStudyInfo: StudyInfo;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  joinedAt: Date;
 
   @OneToMany(() => Attendance, (attendance) => attendance.relStudyMember)
   relAttendance: Attendance[];

@@ -1,4 +1,139 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { User } from 'src/models/user.entity';
+import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Calendar } from 'src/models/calendar.entity';
+import { Between, In, Repository } from 'typeorm';
+import { StudyInfo } from 'src/models/study-info.entity';
+import { StudyMember } from 'src/models/study-member.entity';
 
 @Injectable()
-export class CalendarService {}
+export class CalendarService {
+  constructor(
+    @InjectRepository(Calendar)
+    private calendarRepository: Repository<Calendar>,
+    @InjectRepository(StudyInfo)
+    private studyInfoRepository: Repository<StudyInfo>,
+    @InjectRepository(StudyMember)
+    private studyMemberRepository: Repository<StudyMember>,
+  ) {}
+
+  async getUpcomingSchedule(user: User) {
+    const studyIds = (
+      await this.studyMemberRepository.find({
+        where: { dbUserId: user.dbUserId },
+        select: ['dbStudyInfoId'],
+      })
+    ).map((study) => study.dbStudyInfoId);
+
+    const schedules = await this.calendarRepository.find({
+      where: { dbStudyInfoId: In(studyIds) },
+      order: { startDate: 'DESC' },
+    });
+    if (!schedules) {
+      throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
+    }
+    const filteredSchedules = schedules.filter((schedule) => {
+      return schedule.isHomeView === true; // 일정 홈 뷰에 표시되는 것만 필터링
+    });
+    filteredSchedules.slice(0, 10);
+    return filteredSchedules;
+  }
+
+  async getScheduleList(date: string, user: any) {
+    const studyIds = (
+      await this.studyMemberRepository.find({
+        where: { dbUserId: user.dbUserId },
+        select: ['dbStudyInfoId'],
+      })
+    ).map((study) => study.dbStudyInfoId);
+    const startDate = new Date(date);
+    const endDate = new Date(date + 'T23:59:59Z');
+    const schedules = await this.calendarRepository.find({
+      where: {
+        startDate: Between(startDate, endDate),
+        dbStudyInfoId: In(studyIds),
+      },
+    });
+    if (!schedules) {
+      throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
+    }
+
+    return schedules;
+  }
+
+  async createSchedule(createScheduleDto: CreateScheduleDto, user: User) {
+    const { studyId, ...scheduleInfo } = createScheduleDto;
+    const studyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId: studyId },
+    });
+
+    if (!studyInfo) {
+      throw new HttpException('Study not found', HttpStatus.NOT_FOUND);
+    }
+    if (studyInfo.studyLeaderId !== user.dbUserId) {
+      throw new HttpException('Not a leader', HttpStatus.FORBIDDEN);
+    }
+
+    const { startDate, endDate, ...filteredScheduleInfo } = scheduleInfo;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const schedule = this.calendarRepository.save({
+      studyName: studyInfo.studyName,
+      startDate: start,
+      endDate: end,
+      ...filteredScheduleInfo,
+      relstudyInfo: studyInfo,
+    });
+    return schedule;
+  }
+
+  async updateSchedule(
+    scheduleId: string,
+    updateScheduleDto: CreateScheduleDto,
+    user: User,
+  ) {
+    const schedule = await this.calendarRepository.findOne({
+      where: { scheduleId: scheduleId },
+      relations: ['relstudyInfo'],
+    });
+    if (!schedule) {
+      throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
+    }
+    if (schedule.relstudyInfo.studyLeaderId !== user.dbUserId) {
+      throw new HttpException('Not a leader', HttpStatus.FORBIDDEN);
+    }
+    const { startDate, endDate, ...filteredScheduleInfo } = updateScheduleDto;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    schedule.startDate = start;
+    schedule.endDate = end;
+    schedule.title = filteredScheduleInfo.title;
+    schedule.isHomeView = filteredScheduleInfo.isHomeView;
+    schedule.icon = filteredScheduleInfo?.icon;
+
+    const updatedSchedule = this.calendarRepository.save(schedule);
+    return updatedSchedule;
+  }
+
+  async getCalendarListByMonth(year: number, month: number, user: User) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+    console.log(startDate, endDate);
+    const studyIds = (
+      await this.studyMemberRepository.find({
+        where: { dbUserId: user.dbUserId },
+        select: ['dbStudyInfoId'],
+      })
+    ).map((study) => study.dbStudyInfoId);
+
+    const schedules = await this.calendarRepository.find({
+      where: {
+        dbStudyInfoId: In(studyIds),
+        startDate: Between(startDate, endDate),
+      },
+    });
+
+    return schedules;
+  }
+}

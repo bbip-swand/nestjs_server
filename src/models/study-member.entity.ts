@@ -7,10 +7,12 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Attendance } from './attendance.entity';
 import { UpdateDateEntity } from './base/update-date.entity';
+import { Comment } from './comment.entity';
+import { Posting } from './posting.entity';
 import { StudyInfo } from './study-info.entity';
 import { User } from './user.entity';
-import { Attendance } from './attendance.entity';
 
 @Entity({ name: 'study_member' })
 export class StudyMember extends UpdateDateEntity {
@@ -22,6 +24,9 @@ export class StudyMember extends UpdateDateEntity {
 
   @PrimaryColumn({ name: 'studyId' })
   dbStudyInfoId: number;
+
+  @Column({ default: false })
+  isManager: boolean;
 
   @ManyToOne(() => User, (user) => user.relStudyMember, {
     onDelete: 'CASCADE',
@@ -42,4 +47,10 @@ export class StudyMember extends UpdateDateEntity {
 
   @OneToMany(() => Attendance, (attendance) => attendance.relStudyMember)
   relAttendance: Attendance[];
+
+  @OneToMany(() => Posting, (posting) => posting.writer)
+  relPosting: Posting[];
+
+  @OneToMany(() => Comment, (comment) => comment.writer)
+  relComment: Comment[];
 }

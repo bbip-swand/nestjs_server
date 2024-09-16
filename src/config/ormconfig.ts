@@ -14,6 +14,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: process.env.DB_PASSWORD,
   database: 'bbip_server',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  timezone: 'z',
   autoLoadEntities: true,
   synchronize: process.env.ORM_SYNC === 'true',
   migrationsTableName: 'migration_table',

@@ -11,8 +11,8 @@ export class PostingResponseDto {
   postingId: string;
 
   @Expose()
-  @ApiProperty({ description: '작성자 dbUserId', type: Number })
-  writer: number;
+  @ApiProperty({ description: '작성자 이름', type: String })
+  writer: string;
 
   @Expose()
   @ApiProperty({ description: '제목', type: String })

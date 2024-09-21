@@ -7,6 +7,7 @@ import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { Between, In, Repository } from 'typeorm';
 import { PostingResponseDto } from './dto/postingInfo-response.dto';
+import { UserInfo } from 'src/models/user-info.entity';
 
 @Injectable()
 export class PostingService {
@@ -19,6 +20,8 @@ export class PostingService {
     private studyMemberRepository: Repository<StudyMember>,
     @InjectRepository(Comment)
     private commentRepository: Repository<Comment>,
+    @InjectRepository(UserInfo)
+    private userInfoRepository: Repository<UserInfo>,
   ) {}
 
   async findRecentPosting(user): Promise<PostingResponseDto[]> {
@@ -42,10 +45,13 @@ export class PostingService {
       order: { createdAt: 'ASC' },
       take: 10,
     });
+    const writer = await this.userInfoRepository.findOne({
+      where: { dbUserId: user.dbUserId },
+    });
     const postingsWithStudyNames = postings.map((posting) => ({
       studyName: posting.relStudyInfo.studyName,
       postingId: posting.postingId,
-      writer: posting.writer.dbUserId,
+      writer: writer.name,
       title: posting.title,
       content: posting.content,
       isNotice: posting.isNotice,

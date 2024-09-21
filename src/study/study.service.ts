@@ -7,6 +7,7 @@ import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { StudyInfoDto } from './dto/create-study.dto';
+import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 
 @Injectable()
 export class StudyService {
@@ -139,6 +140,113 @@ export class StudyService {
     return result;
   }
 
+  async findFinishedStudyList(user: any): Promise<StudyBriefInfoResponseDto[]> {
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: { dbUserId: user.dbUserId },
+    });
+    const studyIds: number[] = studyMembers.map(
+      (studyMember) => studyMember.dbStudyInfoId,
+    );
+    const now = moment.tz('Asia/Seoul');
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+    const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
+      where: {
+        dbStudyInfoId: In(studyIds),
+        studyEndDate: LessThanOrEqual(todayDate),
+      },
+    });
+    if (!studyInfos) {
+      throw new HttpException(
+        '종료된 스터디가 없습니다.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const response: StudyBriefInfoResponseDto[] = studyInfos.map(
+      (studyInfo) => {
+        return {
+          studyId: studyInfo.studyId,
+          studyName: studyInfo.studyName,
+          studyImageUrl: studyInfo.studyImageUrl,
+          studyField: studyInfo.studyField,
+          totalWeeks: studyInfo.totalWeeks,
+          studyStartDate: studyInfo.studyStartDate,
+          studyEndDate: studyInfo.studyEndDate,
+          daysOfWeek: studyInfo.daysOfWeek,
+          studyTimes: studyInfo.studyTimes,
+          currentWeek: -1,
+        };
+      },
+    );
+    return response;
+  }
+
+  async findOngoingStudyList(user: User): Promise<StudyBriefInfoResponseDto[]> {
+    const studyMembers = await this.studyMemberRepository.find({
+      where: { dbUserId: user.dbUserId },
+    });
+    if (!studyMembers) {
+      throw new HttpException(
+        '가입된 스터디가 없습니다.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const studyIds: number[] = studyMembers.map(
+      (studyMember) => studyMember.dbStudyInfoId,
+    );
+    const now = moment.tz('Asia/Seoul');
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+    const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
+      where: {
+        dbStudyInfoId: In(studyIds),
+        studyStartDate: LessThanOrEqual(todayDate),
+        studyEndDate: MoreThanOrEqual(todayDate),
+      },
+    });
+    if (!studyInfos) {
+      throw new HttpException(
+        '진행 중인 스터디가 없습니다.',
+        HttpStatus.NOT_FOUND,
+      );
+    } else {
+      console.log(studyInfos);
+    }
+    const currentWeek = await Promise.all(
+      studyInfos.map(async (studyInfo) => {
+        const currentWeekContent = await this.weeklyStudyContentRepository.find(
+          {
+            where: {
+              dbStudyInfoId: studyInfo.dbStudyInfoId,
+              studyStartDate: LessThanOrEqual(todayDate),
+            },
+            order: {
+              studyStartDate: 'DESC',
+            },
+            take: 1,
+          },
+        );
+        return currentWeekContent[0].week;
+      }),
+    );
+
+    const response: StudyBriefInfoResponseDto[] = studyInfos.map(
+      (studyInfo, index) => {
+        return {
+          studyId: studyInfo.studyId,
+          studyName: studyInfo.studyName,
+          studyImageUrl: studyInfo.studyImageUrl,
+          studyField: studyInfo.studyField,
+          totalWeeks: studyInfo.totalWeeks,
+          studyStartDate: studyInfo.studyStartDate,
+          studyEndDate: studyInfo.studyEndDate,
+          daysOfWeek: studyInfo.daysOfWeek,
+          studyTimes: studyInfo.studyTimes,
+          currentWeek: currentWeek[index],
+        };
+      },
+    );
+    return response;
+  }
+
   async createStudyInfo(
     createStudyCreateDto: StudyInfoDto,
     user: User,
@@ -152,7 +260,10 @@ export class StudyService {
       studyInfo.studyTimes.length === 0 ||
       studyInfo.daysOfWeek.length !== studyInfo.studyTimes.length
     ) {
-      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        '주차별 횟수와 시간 횟수가 맞지 않습니다.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const startDate = moment(studyInfo.studyStartDate);
     const endDate = moment(studyInfo.studyEndDate);
@@ -162,23 +273,40 @@ export class StudyService {
       studyInfo.totalWeeks !== weekDiff ||
       studyInfo.totalWeeks > 52
     ) {
-      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+      throw new HttpException('전체 주차 오류', HttpStatus.BAD_REQUEST);
     }
     if (studyContents.length !== studyInfo.totalWeeks) {
-      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        '스터디 세부사항을 완벽히 작성해주세요',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
       studyLeaderId: user.dbUserId,
       ...studyInfo,
     });
+
     let week: number = 1;
     for (const studyContent of studyContents) {
+      const studyWeekday = moment
+        .tz(
+          startDate
+            .clone()
+            .add(week - 1, 'weeks')
+            .add(1, 'day'),
+          'UTC',
+        )
+        .startOf('day')
+        .toDate();
+
       await this.weeklyStudyContentRepository.save({
         dbStudyInfoId: newStudyInfo.dbStudyInfoId,
         week: week++,
+        studyStartDate: studyWeekday,
         content: studyContent,
       });
     }
+
     await this.studyMemberRepository.save({
       dbUserId: user.dbUserId,
       dbStudyInfoId: newStudyInfo.dbStudyInfoId,

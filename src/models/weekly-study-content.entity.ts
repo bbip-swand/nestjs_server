@@ -8,7 +8,6 @@ import {
 import { UpdateDateEntity } from './base/update-date.entity';
 import { StudyInfo } from './study-info.entity';
 
-//현재 필요한 내용만 잡아둔 상태-추가 예정
 @Entity({ name: 'weekly_study_content' })
 export class WeeklyStudyContent extends UpdateDateEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
@@ -16,6 +15,9 @@ export class WeeklyStudyContent extends UpdateDateEntity {
 
   @Column()
   week: number;
+
+  @Column()
+  studyStartDate: Date;
 
   @Column()
   content: string;

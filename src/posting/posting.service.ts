@@ -42,7 +42,6 @@ export class PostingService {
       order: { createdAt: 'ASC' },
       take: 10,
     });
-
     const postingsWithStudyNames = postings.map((posting) => ({
       studyName: posting.relStudyInfo.studyName,
       postingId: posting.postingId,
@@ -51,7 +50,6 @@ export class PostingService {
       content: posting.content,
       isNotice: posting.isNotice,
       createdAt: posting.createdAt,
-      relStudyInfo: posting.relStudyInfo,
     }));
 
     return postingsWithStudyNames;

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { StudyInfo } from 'src/models/study-info.entity';
 
 export class PostingResponseDto {
   @Expose()
@@ -30,8 +29,4 @@ export class PostingResponseDto {
   @Expose()
   @ApiProperty({ description: '생성 날짜', type: Date })
   createdAt: Date;
-
-  @Expose()
-  @ApiProperty()
-  relStudyInfo: StudyInfo;
 }

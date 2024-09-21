@@ -5,6 +5,7 @@ import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
 import { CreatePostingRequestDto } from './dto/create-posting-request.dto';
 import { PostingService } from './posting.service';
+import { PostingResponseDto } from './dto/postingInfo-response.dto';
 
 @MemberJwtController('posting')
 export class PostingController {
@@ -12,6 +13,9 @@ export class PostingController {
 
   @Get()
   @ApiOperation({ summary: '최근 일주일 게시글 조회' })
+  @RestMethod({
+    response: PostingResponseDto,
+  })
   async findRecentPosting(@Request() req) {
     return this.postingService.findRecentPosting(req.user);
   }

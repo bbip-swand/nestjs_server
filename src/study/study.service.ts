@@ -6,6 +6,7 @@ import { StudyMember } from 'src/models/study-member.entity';
 import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { v4 } from 'uuid';
 import { StudyInfoDto } from './dto/create-study.dto';
 
 @Injectable()
@@ -137,6 +138,29 @@ export class StudyService {
       ),
     };
     return result;
+  }
+
+  async createStudyInviteUrl(studyId: string, user: User) {
+    const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId },
+    });
+    if (!studyInfo) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    if (studyInfo.studyLeaderId !== user.dbUserId) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    if (studyInfo.studyInviteCode) {
+      throw new HttpException('Already Exists', HttpStatus.BAD_REQUEST);
+    }
+    const inviteCode = v4();
+    await this.studyInfoRepository.update(
+      { dbStudyInfoId: studyInfo.dbStudyInfoId },
+      { studyInviteCode: inviteCode },
+    );
+    return {
+      inviteUrl: `https://bbip.site/join-study/${inviteCode}`,
+    };
   }
 
   async createStudyInfo(

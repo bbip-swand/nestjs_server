@@ -37,11 +37,11 @@ export class StudyController {
     return this.studyService.findByInviteCode(inviteCode);
   }
 
-  // @Post('create/studyInviteCode/:studyId')
-  // @ApiOperation({ summary: '스터디 초대코드 생성' })
-  // createStudyInviteCode(@Param('studyId') studyId: string) {
-  //   return this.studyService.createStudyInviteCode(studyId);
-  // }
+  @Post('create/studyInvite/:studyId')
+  @ApiOperation({ summary: '스터디 초대링크 생성' })
+  createStudyInviteUrl(@Param('studyId') studyId: string, @Request() req) {
+    return this.studyService.createStudyInviteUrl(studyId, req.user);
+  }
 
   @Post('create')
   @ApiOperation({ summary: '스터디 생성' })

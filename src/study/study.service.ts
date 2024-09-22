@@ -218,10 +218,19 @@ export class StudyService {
     if (!studyinfo) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    const studyMember = await this.studyMemberRepository.save({
+    const studyMember: StudyMember = await this.studyMemberRepository.findOne({
+      where: {
+        dbUserId: user.dbUserId,
+        dbStudyInfoId: studyinfo.dbStudyInfoId,
+      },
+    });
+    if (studyMember) {
+      throw new HttpException('Already Exists', HttpStatus.BAD_REQUEST);
+    }
+    const newStudyMember = await this.studyMemberRepository.save({
       dbUserId: user.dbUserId,
       dbStudyInfoId: studyinfo.dbStudyInfoId,
     });
-    return studyMember;
+    return newStudyMember;
   }
 }

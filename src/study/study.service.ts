@@ -207,8 +207,6 @@ export class StudyService {
         '진행 중인 스터디가 없습니다.',
         HttpStatus.NOT_FOUND,
       );
-    } else {
-      console.log(studyInfos);
     }
     const currentWeek = await Promise.all(
       studyInfos.map(async (studyInfo) => {

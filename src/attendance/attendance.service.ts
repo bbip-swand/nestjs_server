@@ -65,13 +65,16 @@ export class AttendanceService {
     });
     const authCode = this.generateAuthCode();
     //해당 스터디의 스터디원들의 현재 주차의 출석을 결석으로 생성
-    return await this.cacheManager.set(key, {
+    await this.cacheManager.set(key, {
       session: createAttendanceDto.session,
       code: authCode,
       startTime: currentTimeKST,
-      ttl: 600,
+      ttl: 602,
       dbStudyInfoId: dbStudyInfoId,
     });
+    return {
+      code: authCode,
+    };
   }
 
   async checkAttendanceStatus(user: User) {
@@ -82,6 +85,11 @@ export class AttendanceService {
       const attendanceInfo = await this.cacheManager.get(key);
       if (attendanceInfo) {
         attendanceInfo['studyId'] = studyId;
+        attendanceInfo['studyName'] = await this.studyInfoRepository
+          .findOne({
+            where: { studyId },
+          })
+          .then((studyInfo) => studyInfo?.studyName);
         return attendanceInfo;
       }
     }

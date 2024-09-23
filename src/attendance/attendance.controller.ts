@@ -6,6 +6,7 @@ import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
 import { CheckAttendanceResponseDto } from './dto/check-attendance-response.dto';
 import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
+import { CreateAttendanceResponseDto } from './dto/create-attendance-response.dto';
 
 @MemberJwtController('attendance')
 export class AttendanceController {
@@ -15,6 +16,7 @@ export class AttendanceController {
   @ApiOperation({ summary: '출석 생성' })
   @RestMethod({
     request: CreateAttendanceDto,
+    response: CreateAttendanceResponseDto,
   })
   createAttendance(
     @Body() createAttendanceDto: CreateAttendanceDto,

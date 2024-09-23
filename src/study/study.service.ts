@@ -288,16 +288,10 @@ export class StudyService {
 
     let week: number = 1;
     for (const studyContent of studyContents) {
-      const studyWeekday = moment
-        .tz(
-          startDate
-            .clone()
-            .add(week - 1, 'weeks')
-            .add(1, 'day'),
-          'UTC',
-        )
-        .startOf('day')
-        .toDate();
+      const studyWeekday = startDate
+        .clone()
+        .add(week - 1, 'weeks')
+        .format('YYYY-MM-DD');
 
       await this.weeklyStudyContentRepository.save({
         dbStudyInfoId: newStudyInfo.dbStudyInfoId,

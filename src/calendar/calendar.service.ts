@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from 'src/models/user.entity';
-import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import moment from 'moment-timezone';
 import { Calendar } from 'src/models/calendar.entity';
-import { Between, In, Repository } from 'typeorm';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
+import { User } from 'src/models/user.entity';
+import { Between, In, Repository } from 'typeorm';
+import { CreateScheduleDto } from './dto/create-schedule.dto';
 
 @Injectable()
 export class CalendarService {
@@ -29,22 +30,21 @@ export class CalendarService {
     const schedules = await this.calendarRepository.find({
       where: { dbStudyInfoId: In(studyIds) },
       order: { startDate: 'ASC' }, // 임박한 일정부터 오름차순으로 정렬
+      take: 10,
     });
 
     if (!schedules || schedules.length === 0) {
       throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
     }
 
-    const now = new Date();
-    const filteredSchedules = schedules
-      .filter((schedule) => {
-        return (
-          schedule.isHomeView === true &&
-          now >= schedule.startDate &&
-          now <= schedule.endDate // 현재 시간이 startDate와 endDate 사이에 있는 일정 필터링
-        );
-      })
-      .slice(0, 10);
+    const now = moment();
+    const filteredSchedules = schedules.filter((schedule) => {
+      return (
+        schedule.isHomeView === true &&
+        now.isSameOrAfter(schedule.startDate) &&
+        now.isSameOrBefore(schedule.endDate)
+      );
+    });
 
     return filteredSchedules;
   }

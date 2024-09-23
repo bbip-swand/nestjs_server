@@ -6,6 +6,7 @@ import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
 import { StudyInfoDto } from './dto/create-study.dto';
 import { IndividualStudyResponseDto } from './dto/individual-study-response.dto';
 import { StudyInviteResponseDto } from './dto/study-invite-response.dto';
+import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyService } from './study.service';
 
 @MemberJwtController('study')
@@ -21,8 +22,11 @@ export class StudyController {
     return this.studyService.findThisWeekStudyList(req.user);
   }
 
-  @Get('/:studyId')
+  @Get('/search/:studyId')
   @ApiOperation({ summary: '스터디 단건 조회' })
+  @RestMethod({
+    response: StudyInfoDto,
+  })
   findOne(@Param('studyId') studyId: string) {
     return this.studyService.findOne(studyId);
   }
@@ -35,6 +39,24 @@ export class StudyController {
   })
   findByInviteCode(@Param('inviteCode') inviteCode: string) {
     return this.studyService.findByInviteCode(inviteCode);
+  }
+
+  @Get('/ongoing')
+  @ApiOperation({ summary: '진행중인 스터디 목록 조회' })
+  @RestMethod({
+    response: StudyBriefInfoResponseDto,
+  })
+  findOngoingStudyList(@Request() req) {
+    return this.studyService.findOngoingStudyList(req.user);
+  }
+
+  @Get('/finished')
+  @ApiOperation({ summary: '종료된 스터디 목록 조회' })
+  @RestMethod({
+    response: StudyBriefInfoResponseDto,
+  })
+  findFinishedStudyList(@Request() req) {
+    return this.studyService.findFinishedStudyList(req.user);
   }
 
   @Post('create/studyInvite/:studyId')

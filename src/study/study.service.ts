@@ -74,7 +74,7 @@ export class StudyService {
             }))
             .filter(
               (timePair) =>
-                timePair.dayOfWeek >= todayDayOfWeek &&
+                +timePair.dayOfWeek >= todayDayOfWeek &&
                 !nowTime.isAfter(moment(timePair.studyTime.startTime, 'HH:mm')),
             );
 
@@ -105,6 +105,7 @@ export class StudyService {
             return {
               studyId: studyInfo.studyId,
               studyName: studyInfo.studyName,
+              studyWeek: weekNumber,
               studyImageUrl: studyInfo.studyImageUrl,
               studyField: studyInfo.studyField,
               studyDate,
@@ -267,8 +268,10 @@ export class StudyService {
     }
     const startDate = moment(studyInfo.studyStartDate);
     const endDate = moment(studyInfo.studyEndDate);
+    const dayDiff = endDate.diff(startDate, 'days');
     const weekDiff = endDate.diff(startDate, 'weeks');
     if (
+      studyInfo.totalWeeks * 7 !== dayDiff ||
       studyInfo.totalWeeks === 0 ||
       studyInfo.totalWeeks !== weekDiff ||
       studyInfo.totalWeeks > 52

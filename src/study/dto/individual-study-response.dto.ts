@@ -21,6 +21,10 @@ export class IndividualStudyResponseDto {
   studyName: string;
 
   @Expose()
+  @ApiProperty({ description: '스터디 주차', type: Number })
+  studyWeek: number;
+
+  @Expose()
   @ApiProperty({ description: '스터디 사진 url(S3)', type: String })
   studyImageUrl: string;
 

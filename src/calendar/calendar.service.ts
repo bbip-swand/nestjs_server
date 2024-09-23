@@ -35,7 +35,8 @@ export class CalendarService {
       throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
     }
 
-    const now = new Date();
+    const UTC = new Date();
+    const now = new Date(UTC.getTime() + 9 * 60 * 60 * 1000);
     const filteredSchedules = schedules
       .filter((schedule) => {
         return (

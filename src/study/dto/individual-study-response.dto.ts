@@ -32,13 +32,13 @@ export class IndividualStudyResponseDto {
   @ApiProperty({
     description:
       '스터디 분야(0: 전공과목, 1: 자기계발, 2: 어학(토익 등), 3: 자격증, 4: 면접, 5: 개발, 6: 디자인, 7: 취미, 8: 기타)',
-    type: String,
+    type: Number,
   })
-  studyField: string;
+  studyField: number;
 
   @Expose()
-  @ApiProperty({ description: '스터디 날짜', type: String })
-  studyDate: string;
+  @ApiProperty({ description: '스터디 날짜', type: Date })
+  studyDate: Date;
 
   @Expose()
   @ApiProperty({

@@ -5,9 +5,9 @@ import { Comment } from 'src/models/comment.entity';
 import { Posting } from 'src/models/posting.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
+import { UserInfo } from 'src/models/user-info.entity';
 import { Between, In, Repository } from 'typeorm';
 import { PostingResponseDto } from './dto/postingInfo-response.dto';
-import { UserInfo } from 'src/models/user-info.entity';
 
 @Injectable()
 export class PostingService {
@@ -61,15 +61,25 @@ export class PostingService {
     return postingsWithStudyNames;
   }
 
-  async findOne(postingId: string) {
+  async findOne(postingId: string, user) {
     const posting: Posting = await this.postingRepository.findOne({
       where: { postingId },
-      relations: ['relComment'],
+      relations: ['relComment', 'relStudyInfo'],
     });
     if (!posting) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    return posting;
+    const studyMember: StudyMember = await this.studyMemberRepository.findOne({
+      where: {
+        dbUserId: user.dbUserId,
+        dbStudyInfoId: posting.relStudyInfo.dbStudyInfoId,
+      },
+    });
+    if (!studyMember) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const { relStudyInfo, ...result } = posting;
+    return result;
   }
 
   async createPosting(createPostingRequestDto, user) {

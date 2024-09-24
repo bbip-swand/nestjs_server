@@ -4,8 +4,8 @@ import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
 import { CreatePostingRequestDto } from './dto/create-posting-request.dto';
-import { PostingService } from './posting.service';
 import { PostingResponseDto } from './dto/postingInfo-response.dto';
+import { PostingService } from './posting.service';
 
 @MemberJwtController('posting')
 export class PostingController {
@@ -22,8 +22,8 @@ export class PostingController {
 
   @Get('/:postingId')
   @ApiOperation({ summary: '게시글 단건 조회 (댓글까지 세부 조회)' })
-  findOne(@Param('postingId') postingId: string) {
-    return this.postingService.findOne(postingId);
+  findOne(@Param('postingId') postingId: string, @Request() req) {
+    return this.postingService.findOne(postingId, req.user);
   }
 
   @Post('create')

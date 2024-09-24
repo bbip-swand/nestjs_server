@@ -12,7 +12,7 @@ import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
-import { UpcomingScheduleResponseDto } from './dto/upcoming-schedule-response.dto';
+import { ScheduleInfoResponseDto } from './dto/scheduleInfo-response.dto';
 
 @MemberJwtController('calendar')
 export class CalendarController {
@@ -21,7 +21,10 @@ export class CalendarController {
   @Get('list/:year/:month')
   @ApiOperation({
     summary: '연도 및 월별 캘린더 일정 조회',
-    description: '메인 캘린더 뷰에서 호출',
+    description: '메인 캘린더 뷰에서 호출, 아무것도 없을 시 [] 반환',
+  })
+  @RestMethod({
+    response: ScheduleInfoResponseDto,
   })
   async getCalendarListByMonth(
     @Param('year') year: number,
@@ -34,7 +37,10 @@ export class CalendarController {
   @Get('list/:date')
   @ApiOperation({
     summary: '특정 날짜 일정 목록 조회',
-    description: 'date예시 : 2024-09-16',
+    description: 'date예시 : 2024-09-16, 아무것도 없을 시 [] 반환',
+  })
+  @RestMethod({
+    response: ScheduleInfoResponseDto,
   })
   async getScheduleList(@Param('date') date: string, @Request() req) {
     return this.calendarService.getScheduleList(date, req.user);
@@ -43,20 +49,10 @@ export class CalendarController {
   @Get('schedule/upcoming')
   @ApiOperation({
     summary: '다가오는 일정 조회',
-    description: '메인 홈에서 호출',
+    description: '메인 홈에서 호출, 없으면 [] 반환',
   })
   @RestMethod({
-    response: UpcomingScheduleResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Schedule not found',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Schedule not found',
-      },
-    },
+    response: ScheduleInfoResponseDto,
   })
   async getUpcomingSchedule(@Request() req) {
     return this.calendarService.getUpcomingSchedule(req.user);

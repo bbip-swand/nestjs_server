@@ -1,7 +1,15 @@
-import { Body, Get, Param, Post, Put, Request } from '@nestjs/common';
+import {
+  Body,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Request,
+} from '@nestjs/common';
 import { CalendarService } from './calendar.service';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpcomingScheduleResponseDto } from './dto/upcoming-schedule-response.dto';
@@ -34,11 +42,21 @@ export class CalendarController {
 
   @Get('schedule/upcoming')
   @ApiOperation({
-    summary: '다가오는 일정 10개 조회',
+    summary: '다가오는 일정 조회',
     description: '메인 홈에서 호출',
   })
   @RestMethod({
     response: UpcomingScheduleResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Schedule not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Schedule not found',
+      },
+    },
   })
   async getUpcomingSchedule(@Request() req) {
     return this.calendarService.getUpcomingSchedule(req.user);

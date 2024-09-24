@@ -75,8 +75,11 @@ export class StudyService {
             }))
             .filter(
               (timePair) =>
-                +timePair.dayOfWeek >= todayDayOfWeek &&
-                !nowTime.isAfter(moment(timePair.studyTime.startTime, 'HH:mm')),
+                +timePair.dayOfWeek > todayDayOfWeek ||
+                (+timePair.dayOfWeek === todayDayOfWeek &&
+                  !nowTime.isAfter(
+                    moment(timePair.studyTime.startTime, 'HH:mm'),
+                  )),
             );
 
           return {

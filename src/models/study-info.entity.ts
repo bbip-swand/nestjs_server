@@ -8,11 +8,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UpdateDateEntity } from './base/update-date.entity';
+import { Calendar } from './calendar.entity';
 import { Posting } from './posting.entity';
 import { StudyMember } from './study-member.entity';
 import { User } from './user.entity';
 import { WeeklyStudyContent } from './weekly-study-content.entity';
-import { Calendar } from './calendar.entity';
 
 @Entity({ name: 'study_info' })
 export class StudyInfo extends UpdateDateEntity {

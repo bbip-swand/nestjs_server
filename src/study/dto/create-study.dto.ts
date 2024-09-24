@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 
 class StudyTimeDto {
   @Expose()
@@ -53,6 +53,9 @@ export class StudyInfoDto {
     description: '진행 요일 (0: 월, 1: 화, 2: 수, 3: 목, 4: 금, 5: 토, 6: 일)',
     type: [Number],
     example: [0, 2],
+  })
+  @Transform(({ value }) => value.map((v: string) => Number(v)), {
+    toPlainOnly: true,
   })
   daysOfWeek: number[];
 

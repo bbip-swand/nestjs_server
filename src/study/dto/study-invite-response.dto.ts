@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 
 export class StudyInviteResponseDto {
   @Expose()
@@ -23,6 +23,9 @@ export class StudyInviteResponseDto {
   studyEndDate: Date;
 
   @Expose()
+  @Transform(({ value }) => value.map((v: string) => Number(v)), {
+    toPlainOnly: true,
+  })
   daysOfWeek: string[];
 
   @Expose()

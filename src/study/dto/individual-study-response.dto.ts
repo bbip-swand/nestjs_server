@@ -37,7 +37,11 @@ export class IndividualStudyResponseDto {
   studyField: number;
 
   @Expose()
-  @ApiProperty({ description: '스터디 날짜', type: Date })
+  @ApiProperty({
+    description: '스터디 날짜',
+    type: Date,
+    example: '2024-09-24',
+  })
   studyDate: Date;
 
   @Expose()

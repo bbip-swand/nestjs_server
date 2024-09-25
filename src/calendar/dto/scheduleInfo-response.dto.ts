@@ -28,17 +28,17 @@ export class ScheduleInfoResponseDto {
 
   @Expose()
   @ApiProperty({
-    description: '시작일',
+    description: '일정 시작일',
     type: Date,
-    example: '2021-09-16T00:00:00.000Z',
+    example: '2024-09-16T00:00:00.000Z',
   })
   startDate: Date;
 
   @Expose()
   @ApiProperty({
-    description: '종료일',
+    description: '일정 종료일',
     type: Date,
-    example: '2021-09-17T00:00:00.000Z',
+    example: '2024-09-17T00:00:00.000Z',
   })
   endDate: Date;
 

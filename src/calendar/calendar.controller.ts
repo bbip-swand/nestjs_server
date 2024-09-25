@@ -1,15 +1,7 @@
-import {
-  Body,
-  Get,
-  HttpStatus,
-  Param,
-  Post,
-  Put,
-  Request,
-} from '@nestjs/common';
+import { Body, Get, Param, Post, Put, Request } from '@nestjs/common';
 import { CalendarService } from './calendar.service';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { ScheduleInfoResponseDto } from './dto/scheduleInfo-response.dto';

@@ -36,10 +36,10 @@ export class Calendar extends UpdateDateEntity {
   @Column()
   title: string;
 
-  @Column({ type: 'datetime' })
+  @Column()
   startDate: Date;
 
-  @Column({ type: 'datetime' })
+  @Column()
   endDate: Date;
 
   @Column({ default: false })

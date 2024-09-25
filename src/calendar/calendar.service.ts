@@ -31,19 +31,12 @@ export class CalendarService {
       order: { startDate: 'ASC' }, // 임박한 일정부터 오름차순으로 정렬
     });
 
-    // if (!schedules || schedules.length === 0) {
-    //   throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
-    // }
-
-    const now = moment().tz('Asia/Seoul');
+    const now = moment().tz('UTC').add(9, 'hours');
     const filteredSchedules = schedules.filter((schedule) => {
-      const endDate = moment
-        .tz(schedule.endDate, 'Asia/Seoul')
-        .subtract(9, 'hours');
       return (
         schedule.isHomeView === true &&
         // now.isSameOrAfter(schedule.startDate) &&
-        now.isSameOrBefore(endDate)
+        now.isSameOrBefore(schedule.endDate)
       );
     });
     const response = await Promise.all(
@@ -67,8 +60,8 @@ export class CalendarService {
         select: ['dbStudyInfoId'],
       })
     ).map((study) => study.dbStudyInfoId);
-    const startDate = new Date(date);
-    const endDate = new Date(date + 'T23:59:59Z');
+    const startDate = moment.tz(date, 'UTC').startOf('day').toDate();
+    const endDate = moment.tz(date, 'UTC').endOf('day').toDate();
     const schedules = await this.calendarRepository.find({
       where: {
         startDate: Between(startDate, endDate),
@@ -105,10 +98,10 @@ export class CalendarService {
     if (studyInfo.studyLeaderId !== user.dbUserId) {
       throw new HttpException('Not a leader', HttpStatus.FORBIDDEN);
     }
-
     const { startDate, endDate, ...filteredScheduleInfo } = scheduleInfo;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = moment.tz(startDate, 'UTC').format();
+    const end = moment.tz(endDate, 'UTC').format();
+
     const schedule = this.calendarRepository.save({
       studyName: studyInfo.studyName,
       startDate: start,
@@ -135,10 +128,9 @@ export class CalendarService {
       throw new HttpException('Not a leader', HttpStatus.FORBIDDEN);
     }
     const { startDate, endDate, ...filteredScheduleInfo } = updateScheduleDto;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    schedule.startDate = start;
-    schedule.endDate = end;
+
+    schedule.startDate = moment.tz(startDate, 'UTC').toDate();
+    schedule.endDate = moment(endDate, 'UTC').toDate();
     schedule.title = filteredScheduleInfo.title;
     schedule.isHomeView = filteredScheduleInfo.isHomeView;
     schedule.icon = filteredScheduleInfo?.icon;
@@ -148,15 +140,20 @@ export class CalendarService {
   }
 
   async getCalendarListByMonth(year: number, month: number, user: User) {
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 1);
+    const startDate = moment
+      .tz({ year, month: month - 1, day: 1 }, 'UTC')
+      .startOf('day')
+      .toDate();
+    const endDate = moment
+      .tz({ year, month, day: 1 }, 'UTC')
+      .startOf('day')
+      .toDate();
     const studyIds = (
       await this.studyMemberRepository.find({
         where: { dbUserId: user.dbUserId },
         select: ['dbStudyInfoId'],
       })
     ).map((study) => study.dbStudyInfoId);
-
     const schedules = await this.calendarRepository.find({
       where: {
         dbStudyInfoId: In(studyIds),

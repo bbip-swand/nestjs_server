@@ -272,7 +272,6 @@ export class StudyService {
   ): Promise<StudyInfo> {
     const { studyContents, ...studyInfo } = createStudyCreateDto;
     const inviteCode = v4();
-    studyInfo.studyInviteCode = inviteCode;
     if (!studyInfo.studyImageUrl || studyInfo.studyImageUrl === '') {
       studyInfo.studyImageUrl = null;
     }
@@ -306,6 +305,7 @@ export class StudyService {
     }
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
       studyLeaderId: user.dbUserId,
+      studyInviteCode: inviteCode,
       ...studyInfo,
     });
 

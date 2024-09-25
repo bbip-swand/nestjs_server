@@ -61,6 +61,13 @@ export class StudyInfoDto {
 
   @Expose()
   @ApiProperty({
+    description: '스터디 초대 코드(uuid)',
+    type: String,
+  })
+  studyInviteCode: string;
+
+  @Expose()
+  @ApiProperty({
     description: '요일별 스터디 시간',
     type: [StudyTimeDto],
     example: [

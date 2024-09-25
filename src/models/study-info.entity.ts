@@ -53,7 +53,7 @@ export class StudyInfo extends UpdateDateEntity {
   @Column()
   studyDescription: string;
 
-  @Column({ nullable: true })
+  @Column()
   studyInviteCode: string;
 
   @OneToMany(() => StudyMember, (studyMember) => studyMember.relStudyInfo)

@@ -145,7 +145,7 @@ export class StudyService {
     return result;
   }
 
-  async createStudyInviteUrl(studyId: string, user: User) {
+  async getInviteCode(studyId: string, user: User) {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyId },
     });
@@ -155,18 +155,12 @@ export class StudyService {
     if (studyInfo.studyLeaderId !== user.dbUserId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    if (studyInfo.studyInviteCode) {
-      throw new HttpException('Already Exists', HttpStatus.BAD_REQUEST);
-    }
-    const inviteCode = v4();
-    await this.studyInfoRepository.update(
-      { dbStudyInfoId: studyInfo.dbStudyInfoId },
-      { studyInviteCode: inviteCode },
-    );
-    return {
-      inviteUrl: `https://bbip.site/join-study/${inviteCode}`,
+    const result = {
+      studyInviteCode: studyInfo.studyInviteCode,
     };
+    return result;
   }
+
   async findFinishedStudyList(user: any): Promise<StudyBriefInfoResponseDto[]> {
     const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
       where: { dbUserId: user.dbUserId },
@@ -277,6 +271,7 @@ export class StudyService {
     user: User,
   ): Promise<StudyInfo> {
     const { studyContents, ...studyInfo } = createStudyCreateDto;
+    const inviteCode = v4();
     if (!studyInfo.studyImageUrl || studyInfo.studyImageUrl === '') {
       studyInfo.studyImageUrl = null;
     }
@@ -310,6 +305,7 @@ export class StudyService {
     }
     const newStudyInfo: StudyInfo = await this.studyInfoRepository.save({
       studyLeaderId: user.dbUserId,
+      studyInviteCode: inviteCode,
       ...studyInfo,
     });
 

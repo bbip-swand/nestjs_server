@@ -41,6 +41,12 @@ export class StudyController {
     return this.studyService.findByInviteCode(inviteCode);
   }
 
+  @Get('/inviteCode/:studyId')
+  @ApiOperation({ summary: '스터디 초대 코드 조회' })
+  getInviteCode(@Param('studyId') studyId: string, @Request() req) {
+    return this.studyService.getInviteCode(studyId, req.user);
+  }
+
   @Get('/ongoing')
   @ApiOperation({ summary: '진행중인 스터디 목록 조회' })
   @RestMethod({
@@ -57,12 +63,6 @@ export class StudyController {
   })
   findFinishedStudyList(@Request() req) {
     return this.studyService.findFinishedStudyList(req.user);
-  }
-
-  @Post('create/studyInvite/:studyId')
-  @ApiOperation({ summary: '스터디 초대링크 생성' })
-  createStudyInviteUrl(@Param('studyId') studyId: string, @Request() req) {
-    return this.studyService.createStudyInviteUrl(studyId, req.user);
   }
 
   @Post('create')

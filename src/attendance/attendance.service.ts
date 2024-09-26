@@ -160,36 +160,10 @@ export class AttendanceService {
     let latestAttendanceRecords;
     let studyMembers;
     if (!attendanceInfo) {
-      const recentAttendanceRecord = await this.attendanceRepository
-        .createQueryBuilder('attendance')
-        .innerJoin('attendance.relStudyMember', 'studyMember')
-        .innerJoin('studyMember.relStudyInfo', 'studyInfo')
-        .where('studyInfo.studyId = :studyId', { studyId })
-        .orderBy('attendance.session', 'DESC') // session 기준 내림차순 정렬
-        .limit(1)
-        .getOne();
-
-      if (!recentAttendanceRecord) {
-        throw new HttpException(
-          'No attendance records found',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      studyMembers = await this.studyMemberRepository.find({
-        where: {
-          dbStudyInfoId: recentAttendanceRecord.dbStudyInfoId,
-        },
-        relations: ['relUser'],
-      });
-
-      const recentSession = recentAttendanceRecord.session;
-      latestAttendanceRecords = await this.attendanceRepository.find({
-        where: {
-          dbStudyInfoId: recentAttendanceRecord.dbStudyInfoId,
-          session: recentSession,
-        },
-      });
+      throw new HttpException(
+        'No attendance records found',
+        HttpStatus.NOT_FOUND,
+      );
     } else {
       latestAttendanceRecords = await this.attendanceRepository.find({
         where: {

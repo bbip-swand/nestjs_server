@@ -53,12 +53,24 @@ export class StudyService {
         };
       }),
     );
+    const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
+    const currentWeekContent = await this.weeklyStudyContentRepository.find({
+      where: {
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+        studyStartDate: LessThanOrEqual(todayDate),
+      },
+      order: {
+        studyStartDate: 'DESC',
+      },
+      take: 1,
+    });
     const result = {
       ...studyInfo,
       studyContents: weeklyStudyContents.map(
         (weeklyStudyContent) => weeklyStudyContent.content,
       ),
       studyMembers: studyMembersInfo,
+      currentWeek: currentWeekContent[0].week,
     };
 
     return result;

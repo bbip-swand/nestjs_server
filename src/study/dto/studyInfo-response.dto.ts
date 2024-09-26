@@ -51,6 +51,10 @@ export class StudyInfoDto {
   totalWeeks: number;
 
   @Expose()
+  @ApiProperty({ description: '현재 추자', type: Number })
+  currentWeek: number;
+
+  @Expose()
   @ApiProperty({
     description: '스터디 시작 날짜',
     type: Date,

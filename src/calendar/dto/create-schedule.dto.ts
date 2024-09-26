@@ -14,7 +14,7 @@ export class CreateScheduleDto {
   @ApiProperty({
     description: '시작일',
     type: String,
-    example: '2024-09-15 15:00',
+    example: '2024-09-15 15:00:00',
   })
   startDate: string;
 
@@ -22,7 +22,7 @@ export class CreateScheduleDto {
   @ApiProperty({
     description: '종료일',
     type: String,
-    example: '2024-09-15 18:00',
+    example: '2024-09-15 18:00:00',
   })
   endDate: string;
 

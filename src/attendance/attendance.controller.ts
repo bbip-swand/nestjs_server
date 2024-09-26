@@ -1,7 +1,7 @@
-import { Body, Get, Post, Request } from '@nestjs/common';
+import { Body, Get, HttpStatus, Post, Request } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
 import { CheckAttendanceResponseDto } from './dto/check-attendance-response.dto';
@@ -17,6 +17,26 @@ export class AttendanceController {
   @RestMethod({
     request: CreateAttendanceDto,
     response: CreateAttendanceResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Study Info Not Found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Study Info Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Not Study Leader',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Not Study Leader',
+      },
+    },
   })
   createAttendance(
     @Body() createAttendanceDto: CreateAttendanceDto,
@@ -36,6 +56,16 @@ export class AttendanceController {
   @RestMethod({
     response: CheckAttendanceResponseDto,
   })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Attendance Not Found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Attendance Not Found',
+      },
+    },
+  })
   checkAttendanceStatus(@Request() req) {
     return this.attendanceService.checkAttendanceStatus(req.user);
   }
@@ -44,6 +74,35 @@ export class AttendanceController {
   @ApiOperation({ summary: '출석 인증 코드 입력' })
   @RestMethod({
     request: ApplyAttendanceRequestDto,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Success',
+    schema: {
+      example: {
+        message: 'Success',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Attendance Timeout',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Attendance Timeout',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid Code',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Invalid Code',
+      },
+    },
   })
   applyAttendanceCode(
     @Body() applyAttendanceDto: ApplyAttendanceRequestDto,

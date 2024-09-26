@@ -1,55 +1,46 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-export class UpcomingScheduleResponseDto {
+export class ScheduleInfoResponseDto {
   @Expose()
   @ApiProperty({
-    description: '일정 ID',
+    description: '일정 uuid',
     type: String,
+    example: 'e87bbb6c-d9db-44e1-af1f-9327307201f9',
   })
-  id: string;
+  scheduleId: string;
 
   @Expose()
   @ApiProperty({
     description: '스터디 이름',
     type: String,
+    example: 'JLPT 스터디',
   })
   studyName: string;
 
   @Expose()
   @ApiProperty({
-    description: '스터디 uuid',
-    type: String,
-  })
-  studyId: string;
-
-  @Expose()
-  @ApiProperty({
-    description: '스터디 ID',
-    type: Number,
-  })
-  dbStudyInfoId: number;
-
-  @Expose()
-  @ApiProperty({
     description: '일정 제목',
     type: String,
+    example: 'JLPT 시험',
   })
   title: string;
 
   @Expose()
   @ApiProperty({
-    description: '시작일',
-    type: String,
+    description: '일정 시작일',
+    type: Date,
+    example: '2024-09-16T00:00:00.000Z',
   })
-  startDate: string;
+  startDate: Date;
 
   @Expose()
   @ApiProperty({
-    description: '종료일',
-    type: String,
+    description: '일정 종료일',
+    type: Date,
+    example: '2024-09-17T00:00:00.000Z',
   })
-  endDate: string;
+  endDate: Date;
 
   @Expose()
   @ApiProperty({

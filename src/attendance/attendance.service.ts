@@ -8,6 +8,7 @@ import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
 import { StudyMember } from 'src/models/study-member.entity';
 import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
 import { Attendance } from 'src/models/attendance.entity';
+import { UserInfo } from 'src/models/user-info.entity';
 
 interface AttendanceInfo {
   session: number;
@@ -27,6 +28,8 @@ export class AttendanceService {
     private studyMemberRepository: Repository<StudyMember>,
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>,
+    @InjectRepository(UserInfo)
+    private userInfoRepository: Repository<UserInfo>,
   ) {}
 
   async createAttendance(createAttendanceDto: CreateAttendanceDto, user: User) {
@@ -42,12 +45,22 @@ export class AttendanceService {
     });
     //모든 스터디 멤버들의 출결 상황 ABSENT로 초기화
     for (const studyMember of studyMembers) {
-      await this.attendanceRepository.save({
-        dbUserId: studyMember.dbUserId,
-        dbStudyInfoId: studyInfo.dbStudyInfoId,
-        dbStudyMemberId: studyMember.dbStudyMemberId,
-        session: createAttendanceDto.session,
-      });
+      if (studyMember.isManager) {
+        await this.attendanceRepository.save({
+          dbUserId: studyMember.dbUserId,
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          dbStudyMemberId: studyMember.dbStudyMemberId,
+          session: createAttendanceDto.session,
+          status: 'ATTENDED',
+        });
+      } else {
+        await this.attendanceRepository.save({
+          dbUserId: studyMember.dbUserId,
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          dbStudyMemberId: studyMember.dbStudyMemberId,
+          session: createAttendanceDto.session,
+        });
+      }
     }
     if (!studyInfo) {
       throw new HttpException('Study Info Found', HttpStatus.NOT_FOUND);
@@ -139,5 +152,57 @@ export class AttendanceService {
       relations: ['relStudyInfo'], // 관계된 StudyInfo 데이터 로드
     });
     return studyIds.map((study) => study.relStudyInfo.studyId);
+  }
+
+  async checkAttendanceRecords(studyId: string, user: User) {
+    const key = `attendance:${studyId}`;
+    const attendanceInfo: AttendanceInfo = await this.cacheManager.get(key);
+    let latestAttendanceRecords;
+    let studyMembers;
+    if (!attendanceInfo) {
+      throw new HttpException(
+        'No attendance records found',
+        HttpStatus.NOT_FOUND,
+      );
+    } else {
+      latestAttendanceRecords = await this.attendanceRepository.find({
+        where: {
+          dbStudyInfoId: attendanceInfo.dbStudyInfoId,
+          session: attendanceInfo.session,
+        },
+      });
+      studyMembers = await this.studyMemberRepository.find({
+        where: {
+          dbStudyInfoId: attendanceInfo.dbStudyInfoId,
+        },
+        relations: ['relUser'],
+      });
+    }
+
+    const studyMemberInfos = await Promise.all(
+      studyMembers.map(async (member) => {
+        const userInfo = await this.userInfoRepository.findOne({
+          where: {
+            dbUserId: member.dbUserId,
+          },
+        });
+        return {
+          ...userInfo,
+          profileImageUrl: userInfo?.profileImageUrl,
+        };
+      }),
+    );
+    const attendanceRecordsResponse = latestAttendanceRecords.map((record) => {
+      const userInfo = studyMemberInfos.find(
+        (member) => member.dbUserId === record.dbUserId,
+      );
+      return {
+        session: record.session,
+        userName: userInfo.name,
+        status: record.status,
+        profileImageUrl: userInfo.profileImageUrl,
+      };
+    });
+    return attendanceRecordsResponse;
   }
 }

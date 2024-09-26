@@ -82,6 +82,35 @@ export class PostingService {
     return result;
   }
 
+  async findAllPosting(studyId: string, user: any) {
+    const studyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId: studyId },
+    });
+
+    const postings = await this.postingRepository.find({
+      where: { relStudyInfo: In([studyInfo.dbStudyInfoId]) },
+      relations: ['writer'],
+    });
+
+    const response = await Promise.all(
+      postings.map(async (posting) => {
+        const writer = await this.userInfoRepository.findOne({
+          where: { dbUserId: posting.writer.dbUserId },
+        });
+        return {
+          studyName: studyInfo.studyName,
+          postingId: posting.postingId,
+          writer: writer.name,
+          title: posting.title,
+          content: posting.content,
+          isNotice: posting.isNotice,
+          createdAt: posting.createdAt,
+        };
+      }),
+    );
+    return response;
+  }
+
   async createPosting(createPostingRequestDto, user) {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyId: createPostingRequestDto.studyId },

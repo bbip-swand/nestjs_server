@@ -11,7 +11,7 @@ import { PostingService } from './posting.service';
 export class PostingController {
   constructor(private readonly postingService: PostingService) {}
 
-  @Get()
+  @Get('/recent')
   @ApiOperation({ summary: '최근 일주일 게시글 조회' })
   @RestMethod({
     response: PostingResponseDto,
@@ -20,7 +20,16 @@ export class PostingController {
     return this.postingService.findRecentPosting(req.user);
   }
 
-  @Get('/:postingId')
+  @Get('/all/:studyId')
+  @ApiOperation({ summary: '스터디 게시글 전체 조회' })
+  @RestMethod({
+    response: PostingResponseDto,
+  })
+  async findAllPosting(@Param('studyId') studyId: string, @Request() req) {
+    return this.postingService.findAllPosting(studyId, req.user);
+  }
+
+  @Get('/deatils/:postingId')
   @ApiOperation({ summary: '게시글 단건 조회 (댓글까지 세부 조회)' })
   findOne(@Param('postingId') postingId: string, @Request() req) {
     return this.postingService.findOne(postingId, req.user);

@@ -3,13 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment-timezone';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
+import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { CreateStudyDto } from './dto/create-study.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
-import { UserInfo } from 'src/models/user-info.entity';
 
 @Injectable()
 export class StudyService {
@@ -116,7 +116,9 @@ export class StudyService {
 
           return {
             ...studyInfo,
-            daysOfWeek: filteredTimePairs.map((timePair) => timePair.dayOfWeek),
+            daysOfWeek: filteredTimePairs.map(
+              (timePair) => +timePair.dayOfWeek,
+            ),
             studyTimes: filteredTimePairs.map((timePair) => timePair.studyTime),
           };
         })
@@ -133,10 +135,12 @@ export class StudyService {
           });
 
           return studyInfo.daysOfWeek.map((dayOfWeek, index) => {
+            const startDateDayOfWeek =
+              startDate.day() === 0 ? 6 : startDate.day() - 1;
             const studyDate = startDate
               .clone()
               .add(weekNumber - 1, 'weeks')
-              .day(dayOfWeek === 6 ? 0 : dayOfWeek + 1)
+              .add((dayOfWeek + 7 - startDateDayOfWeek) % 7, 'days')
               .format('YYYY-MM-DD');
             return {
               studyId: studyInfo.studyId,
@@ -145,7 +149,7 @@ export class StudyService {
               studyImageUrl: studyInfo.studyImageUrl,
               studyField: studyInfo.studyField,
               studyDate,
-              dayOfWeek: +dayOfWeek,
+              dayOfWeek: dayOfWeek,
               studyTime: studyInfo.studyTimes[index],
               studyContent: studyContent.content,
             };

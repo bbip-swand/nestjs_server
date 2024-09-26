@@ -11,6 +11,10 @@ export class AttendanceRecordsResponseDto {
   userName: string;
 
   @Expose()
+  @ApiProperty({ type: String, description: '스터디원 프로필 사진' })
+  profileImageUrl: string;
+
+  @Expose()
   @ApiProperty({ type: String, description: '출석 상태' })
   status: string;
 }

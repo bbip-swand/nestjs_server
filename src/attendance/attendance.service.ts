@@ -158,31 +158,35 @@ export class AttendanceService {
     const key = `attendance:${studyId}`;
     const attendanceInfo: AttendanceInfo = await this.cacheManager.get(key);
     let latestAttendanceRecords;
+    let studyMembers;
     if (!attendanceInfo) {
-      const studyInfo = await this.studyInfoRepository.findOne({
-        where: {
-          studyId,
-        },
-      });
-      const recentAttendanceRecord = await this.attendanceRepository.find({
-        where: {
-          dbStudyInfoId: studyInfo.dbStudyInfoId,
-        },
-        order: {
-          session: 'DESC',
-        },
-        take: 1,
-      });
-      if (recentAttendanceRecord.length === 0) {
+      const recentAttendanceRecord = await this.attendanceRepository
+        .createQueryBuilder('attendance')
+        .innerJoin('attendance.relStudyMember', 'studyMember')
+        .innerJoin('studyMember.relStudyInfo', 'studyInfo')
+        .where('studyInfo.studyId = :studyId', { studyId })
+        .orderBy('attendance.session', 'DESC') // session 기준 내림차순 정렬
+        .limit(1)
+        .getOne();
+
+      if (!recentAttendanceRecord) {
         throw new HttpException(
           'No attendance records found',
           HttpStatus.NOT_FOUND,
         );
       }
-      const recentSession = recentAttendanceRecord[0].session;
+
+      studyMembers = await this.studyMemberRepository.find({
+        where: {
+          dbStudyInfoId: recentAttendanceRecord.dbStudyInfoId,
+        },
+        relations: ['relUser'],
+      });
+
+      const recentSession = recentAttendanceRecord.session;
       latestAttendanceRecords = await this.attendanceRepository.find({
         where: {
-          dbStudyInfoId: attendanceInfo.dbStudyInfoId,
+          dbStudyInfoId: recentAttendanceRecord.dbStudyInfoId,
           session: recentSession,
         },
       });
@@ -193,21 +197,25 @@ export class AttendanceService {
           session: attendanceInfo.session,
         },
       });
+      studyMembers = await this.studyMemberRepository.find({
+        where: {
+          dbStudyInfoId: attendanceInfo.dbStudyInfoId,
+        },
+        relations: ['relUser'],
+      });
     }
 
-    const studyMember = await this.studyMemberRepository.find({
-      where: {
-        dbStudyInfoId: attendanceInfo.dbStudyInfoId,
-      },
-      relations: ['relUser'],
-    });
     const studyMemberInfos = await Promise.all(
-      studyMember.map(async (member) => {
-        return await this.userInfoRepository.findOne({
+      studyMembers.map(async (member) => {
+        const userInfo = await this.userInfoRepository.findOne({
           where: {
-            dbUserId: member.relUser.dbUserId,
+            dbUserId: member.dbUserId,
           },
         });
+        return {
+          ...userInfo,
+          profileImageUrl: userInfo?.profileImageUrl,
+        };
       }),
     );
     const attendanceRecordsResponse = latestAttendanceRecords.map((record) => {
@@ -218,6 +226,7 @@ export class AttendanceService {
         session: record.session,
         userName: userInfo.name,
         status: record.status,
+        profileImageUrl: userInfo.profileImageUrl,
       };
     });
     return attendanceRecordsResponse;

@@ -3,11 +3,12 @@ import { ApiOperation } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
-import { StudyInfoDto } from './dto/create-study.dto';
+import { CreateStudyDto } from './dto/create-study.dto';
 import { IndividualStudyResponseDto } from './dto/individual-study-response.dto';
 import { StudyInviteResponseDto } from './dto/study-invite-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyService } from './study.service';
+import { StudyInfoDto } from './dto/studyInfo-response.dto';
 
 @MemberJwtController('study')
 export class StudyController {
@@ -68,9 +69,9 @@ export class StudyController {
   @Post('create')
   @ApiOperation({ summary: '스터디 생성' })
   @RestMethod({
-    request: StudyInfoDto,
+    request: CreateStudyDto,
   })
-  createStudy(@Body() studyInfoDto: StudyInfoDto, @Request() req) {
+  createStudy(@Body() studyInfoDto: CreateStudyDto, @Request() req) {
     // eslint-disable-next-line prettier/prettier
     return this.studyService.createStudyInfo(studyInfoDto, req.user);
   }

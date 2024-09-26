@@ -10,10 +10,16 @@ import { UsersModule } from 'src/users/users.module';
 import { StudyController } from './study.controller';
 import { StudyService } from './study.service';
 import { StudyMember } from 'src/models/study-member.entity';
+import { UserInfo } from 'src/models/user-info.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([StudyInfo, WeeklyStudyContent, StudyMember]),
+    TypeOrmModule.forFeature([
+      StudyInfo,
+      WeeklyStudyContent,
+      StudyMember,
+      UserInfo,
+    ]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     forwardRef(() => TransactionCoreModule),

@@ -7,8 +7,9 @@ import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { v4 } from 'uuid';
-import { StudyInfoDto } from './dto/create-study.dto';
+import { CreateStudyDto } from './dto/create-study.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
+import { UserInfo } from 'src/models/user-info.entity';
 
 @Injectable()
 export class StudyService {
@@ -19,9 +20,11 @@ export class StudyService {
     private weeklyStudyContentRepository: Repository<WeeklyStudyContent>,
     @InjectRepository(StudyMember)
     private studyMemberRepository: Repository<StudyMember>,
+    @InjectRepository(UserInfo)
+    private userInfoRepository: Repository<UserInfo>,
   ) {}
 
-  async findOne(studyId: string): Promise<StudyInfo> {
+  async findOne(studyId: string) {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyId },
     });
@@ -34,11 +37,40 @@ export class StudyService {
         where: { dbStudyInfoId: studyInfo.dbStudyInfoId },
       });
 
+    const studyMembers = await this.studyMemberRepository.find({
+      where: { dbStudyInfoId: studyInfo.dbStudyInfoId },
+    });
+    const studyMembersInfo = await Promise.all(
+      studyMembers.map(async (studyMember) => {
+        const userInfo = await this.userInfoRepository.findOne({
+          where: { dbUserId: studyMember.dbUserId },
+        });
+        return {
+          memberName: userInfo.name,
+          isManager: studyMember.isManager,
+          memberImageUrl: userInfo.profileImageUrl,
+          interest: userInfo.interest,
+        };
+      }),
+    );
+    const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
+    const currentWeekContent = await this.weeklyStudyContentRepository.find({
+      where: {
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+        studyStartDate: LessThanOrEqual(todayDate),
+      },
+      order: {
+        studyStartDate: 'DESC',
+      },
+      take: 1,
+    });
     const result = {
       ...studyInfo,
       studyContents: weeklyStudyContents.map(
         (weeklyStudyContent) => weeklyStudyContent.content,
       ),
+      studyMembers: studyMembersInfo,
+      currentWeek: currentWeekContent[0].week,
     };
 
     return result;
@@ -267,7 +299,7 @@ export class StudyService {
   }
 
   async createStudyInfo(
-    createStudyCreateDto: StudyInfoDto,
+    createStudyCreateDto: CreateStudyDto,
     user: User,
   ): Promise<StudyInfo> {
     const { studyContents, ...studyInfo } = createStudyCreateDto;

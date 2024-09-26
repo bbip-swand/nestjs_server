@@ -15,6 +15,10 @@ export class AttendanceRecordsResponseDto {
   profileImageUrl: string;
 
   @Expose()
-  @ApiProperty({ type: String, description: '출석 상태' })
+  @ApiProperty({
+    type: String,
+    description: '출석 상태',
+    example: 'ATTENDED | ABSENT',
+  })
   status: string;
 }

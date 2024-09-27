@@ -142,6 +142,9 @@ export class UsersService {
     if (userInfo) {
       throw new HttpException('Already Exist', HttpStatus.BAD_REQUEST);
     }
+    if (!dto.profileImageUrl || dto.profileImageUrl === '') {
+      dto.profileImageUrl = null;
+    }
 
     const { location, ...filteredDto } = dto;
     const UserLocationInfo = {

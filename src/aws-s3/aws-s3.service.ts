@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -40,10 +44,10 @@ export class AwsS3Service {
     dto: GetUploadFilePresignedUrlRequestDto,
     user: User,
   ) {
-    const { fileName, studyId } = dto;
+    const { fileName, fileKey, studyId } = dto;
     const command = new PutObjectCommand({
       Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
-      Key: `Archive/${fileName}`,
+      Key: `Archive/${fileKey}`,
     });
     const signedUrl = await getSignedUrl(this.s3Client, command, {
       expiresIn: 60,
@@ -65,9 +69,28 @@ export class AwsS3Service {
     }
     await this.archiveRepository.save({
       fileName,
+      fileKey,
       relStudyInfo: studyInfo,
       uploader: studyMember,
     });
     return signedUrl;
+  }
+
+  async getPresignedUrl({
+    fileName,
+    fileKey,
+  }: {
+    fileName: string;
+    fileKey: string;
+  }) {
+    const command = new GetObjectCommand({
+      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
+      Key: `Archive/${fileKey}`,
+      ResponseContentDisposition: `attachment; filename="${fileName}"`,
+    });
+    const fileUrl = await getSignedUrl(this.s3Client, command, {
+      expiresIn: 60 * 60 * 24 * 7,
+    });
+    return fileUrl;
   }
 }

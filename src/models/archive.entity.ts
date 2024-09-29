@@ -17,6 +17,9 @@ export class Archive extends CreateDateEntity {
   @Column()
   fileName: string;
 
+  @Column()
+  fileKey: string;
+
   @ManyToOne(() => StudyInfo, (studyInfo) => studyInfo.relArchive, {
     onDelete: 'CASCADE',
   })

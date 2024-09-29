@@ -23,6 +23,10 @@ export class PostingResponseDto {
   content: string;
 
   @Expose()
+  @ApiProperty({ description: '주차', type: Number })
+  week: number;
+
+  @Expose()
   @ApiProperty({ description: '공지사항 여부', type: Boolean })
   isNotice: boolean;
 

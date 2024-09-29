@@ -53,6 +53,7 @@ export class PostingService {
       postingId: posting.postingId,
       writer: writer.name,
       title: posting.title,
+      week: posting.week,
       content: posting.content,
       isNotice: posting.isNotice,
       createdAt: posting.createdAt,
@@ -103,6 +104,7 @@ export class PostingService {
           writer: writer.name,
           title: posting.title,
           content: posting.content,
+          week: posting.week,
           isNotice: posting.isNotice,
           createdAt: posting.createdAt,
         };
@@ -138,6 +140,7 @@ export class PostingService {
     posting.isNotice = createPostingRequestDto.isNotice;
     posting.writer = studyMember;
     posting.relStudyInfo = studyInfo;
+    posting.week = createPostingRequestDto.week;
 
     await this.postingRepository.save(posting);
 

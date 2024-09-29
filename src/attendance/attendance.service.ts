@@ -2,6 +2,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FirebaseService } from 'src/firebase/firebase.service';
 import { Attendance } from 'src/models/attendance.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
@@ -29,6 +30,7 @@ interface CheckAttendanceResponse {
 export class AttendanceService {
   constructor(
     private readonly configService: ConfigService,
+    private firebaseService: FirebaseService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(StudyInfo)
     private studyInfoRepository: Repository<StudyInfo>,
@@ -50,8 +52,10 @@ export class AttendanceService {
       where: {
         dbStudyInfoId: studyInfo?.dbStudyInfoId,
       },
+      relations: ['relUser'],
     });
     //모든 스터디 멤버들의 출결 상황 ABSENT로 초기화
+    const fcmTokens = [];
     for (const studyMember of studyMembers) {
       if (studyMember.isManager) {
         await this.attendanceRepository.save({
@@ -62,6 +66,7 @@ export class AttendanceService {
           status: 'ATTENDED',
         });
       } else {
+        fcmTokens.push(studyMember.relUser.fcmToken);
         await this.attendanceRepository.save({
           dbUserId: studyMember.dbUserId,
           dbStudyInfoId: studyInfo.dbStudyInfoId,
@@ -93,6 +98,8 @@ export class AttendanceService {
       ttl: this.configService.get('REDIS_DEFAULT_TTL'),
       dbStudyInfoId: dbStudyInfoId,
     });
+    const title = `${studyInfo.studyName}`;
+    await this.firebaseService.multiFcm(fcmTokens, title, '출석 시작');
     return {
       code: authCode,
     };

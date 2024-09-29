@@ -18,6 +18,7 @@ import { TransactionCoreModule } from './transaction-core/transaction-core.modul
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './utils/guards/jwt-auth.guard';
 import { CalendarModule } from './calendar/calendar.module';
+import { ArchiveModule } from './archive/archive.module';
 
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 @Module({
@@ -48,6 +49,7 @@ const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
     AttendanceModule,
     CalendarModule,
     PostingModule,
+    ArchiveModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

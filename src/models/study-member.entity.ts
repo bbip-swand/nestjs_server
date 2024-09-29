@@ -7,6 +7,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Archive } from './archive.entity';
 import { Attendance } from './attendance.entity';
 import { UpdateDateEntity } from './base/update-date.entity';
 import { Comment } from './comment.entity';
@@ -44,6 +45,9 @@ export class StudyMember extends UpdateDateEntity {
   })
   @JoinColumn({ name: 'studyId', referencedColumnName: 'dbStudyInfoId' })
   relStudyInfo: StudyInfo;
+
+  @OneToMany(() => Archive, (archive) => archive.uploader)
+  relArchive: Archive[];
 
   @OneToMany(() => Attendance, (attendance) => attendance.relStudyMember)
   relAttendance: Attendance[];

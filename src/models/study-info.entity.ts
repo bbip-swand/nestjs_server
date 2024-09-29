@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Archive } from './archive.entity';
 import { UpdateDateEntity } from './base/update-date.entity';
 import { Calendar } from './calendar.entity';
 import { Posting } from './posting.entity';
@@ -58,6 +59,9 @@ export class StudyInfo extends UpdateDateEntity {
 
   @OneToMany(() => StudyMember, (studyMember) => studyMember.relStudyInfo)
   relStudyMember: StudyMember[];
+
+  @OneToMany(() => Archive, (archive) => archive.relStudyInfo)
+  relArchive: Archive[];
 
   @OneToMany(
     () => WeeklyStudyContent,

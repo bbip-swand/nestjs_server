@@ -22,4 +22,15 @@ export class AwsS3Service {
     });
     return signedUrl;
   }
+
+  async getFilePresignedUrl(fileName: string) {
+    const command = new PutObjectCommand({
+      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
+      Key: `Archive/${fileName}`,
+    });
+    const signedUrl = await getSignedUrl(this.s3Client, command, {
+      expiresIn: 60,
+    });
+    return signedUrl;
+  }
 }

@@ -16,4 +16,13 @@ export class AwsS3Controller {
     const result = await this.awsS3Service.getImagePresignedUrl(dto.fileName);
     return result;
   }
+
+  @Post('upload-file/presigned-url')
+  @RestMethod({
+    request: GetPresignedUrlRequestDto,
+  })
+  async getFilePresignedUrl(@Body() dto: GetPresignedUrlRequestDto) {
+    const result = await this.awsS3Service.getFilePresignedUrl(dto.fileName);
+    return result;
+  }
 }

@@ -103,16 +103,11 @@ export class AttendanceService {
     let studyId;
     for (studyId of studyIds) {
       const key = `attendance:${studyId}`;
-      const attendanceInfo = await this.cacheManager.get(key);
+      const attendanceInfo: CheckAttendanceResponse =
         await this.cacheManager.get(key);
       if (attendanceInfo) {
         attendanceInfo['studyId'] = studyId;
-        attendanceInfo['studyName'] = await this.studyInfoRepository
-          .findOne({
-            where: { studyId },
-          })
-          .then((studyInfo) => studyInfo?.studyName);
-        return attendanceInfo;
+        const studyInfo = await this.studyInfoRepository.findOne({
           where: { studyId },
         });
         attendanceInfo['studyName'] = studyInfo.studyName;
@@ -125,6 +120,7 @@ export class AttendanceService {
         return {
           ...attendanceInfo,
           isManager: studyMember.isManager,
+        };
       }
     }
     throw new HttpException('attendance Not Found', HttpStatus.NOT_FOUND); //출석 정보 없음

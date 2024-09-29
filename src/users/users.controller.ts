@@ -5,6 +5,7 @@ import { RestMethod } from 'src/utils/decorators/rest-method';
 import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
 import { AppleSignupRequestDto } from './dto/apple-signup-request.dto';
 import { AppleSignupResponseDto } from './dto/apple-signup-response.dto';
+import { FcmRequestDto } from './dto/fcm-request.dto';
 import { userInfoRequestDto } from './dto/user-info-request.dto';
 import { UsersService } from './users.service';
 
@@ -31,6 +32,19 @@ export class UsersController {
   @ApiOperation({ summary: 'Apple 회원탈퇴' })
   async appleResign(@Request() req) {
     const result = await this.usersService.appleResign(req.user);
+    return result;
+  }
+
+  @Post('fcmToken')
+  @ApiOperation({ summary: 'Get FCM Token' })
+  @RestMethod({
+    request: FcmRequestDto,
+  })
+  async getFcmToken(@Body() dto: FcmRequestDto, @Request() req) {
+    const result = await this.usersService.updateFcmToken(
+      req.user.dbUserId,
+      dto.fcmToken,
+    );
     return result;
   }
 

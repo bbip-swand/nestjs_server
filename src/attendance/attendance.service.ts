@@ -2,6 +2,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as moment from 'moment-timezone';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { Attendance } from 'src/models/attendance.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
@@ -11,7 +12,6 @@ import { User } from 'src/models/user.entity';
 import { Repository } from 'typeorm';
 import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
 import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
-import * as moment from 'moment-timezone';
 
 interface AttendanceInfo {
   session: number;
@@ -23,6 +23,7 @@ interface AttendanceInfo {
 
 interface CheckAttendanceResponse {
   session: number;
+  code: number;
   startTime: string;
   ttl: number;
 }
@@ -88,7 +89,6 @@ export class AttendanceService {
 
     const key = `attendance:${createAttendanceDto.studyId}`;
     const currentTimeKST = moment.utc().add(9, 'hours').format();
-    console.log(currentTimeKST);
     const authCode = this.generateAuthCode();
     //해당 스터디의 스터디원들의 현재 주차의 출석을 결석으로 생성
     await this.cacheManager.set(key, {
@@ -124,9 +124,13 @@ export class AttendanceService {
             dbStudyInfoId: studyInfo.dbStudyInfoId,
           },
         });
+        const isManager = studyMember.isManager;
+        if (!isManager) {
+          delete attendanceInfo.code;
+        }
         return {
           ...attendanceInfo,
-          isManager: studyMember.isManager,
+          isManager,
         };
       }
     }

@@ -23,6 +23,10 @@ export class CheckAttendanceResponseDto {
   ttl: number;
 
   @Expose()
+  @ApiProperty({ type: Number, description: '출석 인증 코드' })
+  code?: number;
+
+  @Expose()
   @ApiProperty({ description: '스터디장 여부', type: Boolean })
   isManager: boolean;
 }

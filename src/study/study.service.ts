@@ -178,35 +178,36 @@ export class StudyService {
         .filter((studyInfo) => studyInfo.daysOfWeek.length > 0)
         .flatMap(async (studyInfo) => {
           const startDate = moment(studyInfo.studyStartDate);
-          const weekNumber = now.diff(startDate, 'weeks') + 1;
 
-          const studyContent = await this.weeklyStudyContentRepository.findOne({
-            where: {
-              dbStudyInfoId: studyInfo.dbStudyInfoId,
-              week: weekNumber,
-            },
-          });
+          return await Promise.all(
+            studyInfo.daysOfWeek.map(async (dayOfWeek, index) => {
+              const studyDateDayOfWeek =
+                startDate.day() === 0 ? 6 : startDate.day() - 1;
+              const studyDate = startDate
+                .clone()
+                .add(dayOfWeek + 7 - studyDateDayOfWeek, 'days');
+              const weekNumber = studyDate.diff(startDate, 'weeks') + 1;
 
-          return studyInfo.daysOfWeek.map((dayOfWeek, index) => {
-            const startDateDayOfWeek =
-              startDate.day() === 0 ? 6 : startDate.day() - 1;
-            const studyDate = startDate
-              .clone()
-              .add(weekNumber - 1, 'weeks')
-              .add((dayOfWeek + 7 - startDateDayOfWeek) % 7, 'days')
-              .format('YYYY-MM-DD');
-            return {
-              studyId: studyInfo.studyId,
-              studyName: studyInfo.studyName,
-              studyWeek: weekNumber,
-              studyImageUrl: studyInfo.studyImageUrl,
-              studyField: studyInfo.studyField,
-              studyDate,
-              dayOfWeek: dayOfWeek,
-              studyTime: studyInfo.studyTimes[index],
-              studyContent: studyContent.content,
-            };
-          });
+              const studyContent =
+                await this.weeklyStudyContentRepository.findOne({
+                  where: {
+                    dbStudyInfoId: studyInfo.dbStudyInfoId,
+                    week: weekNumber,
+                  },
+                });
+              return {
+                studyId: studyInfo.studyId,
+                studyName: studyInfo.studyName,
+                studyWeek: weekNumber,
+                studyImageUrl: studyInfo.studyImageUrl,
+                studyField: studyInfo.studyField,
+                studyDate: studyDate.format('YYYY-MM-DD'),
+                dayOfWeek: dayOfWeek,
+                studyTime: studyInfo.studyTimes[index],
+                studyContent: studyContent.content,
+              };
+            }),
+          );
         }),
     );
     const flattenedStudyInfos = filteredStudyInfos.flat();

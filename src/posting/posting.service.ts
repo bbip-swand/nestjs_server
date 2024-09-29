@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { addHours, subDays } from 'date-fns';
+import { FirebaseService } from 'src/firebase/firebase.service';
 import { Comment } from 'src/models/comment.entity';
 import { Posting } from 'src/models/posting.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
-import { Between, In, Repository } from 'typeorm';
+import { Between, In, Not, Repository } from 'typeorm';
 import { PostingResponseDto } from './dto/postingInfo-response.dto';
 
 @Injectable()
@@ -22,6 +23,7 @@ export class PostingService {
     private commentRepository: Repository<Comment>,
     @InjectRepository(UserInfo)
     private userInfoRepository: Repository<UserInfo>,
+    private firebaseService: FirebaseService,
   ) {}
 
   async findRecentPosting(user): Promise<PostingResponseDto[]> {
@@ -133,6 +135,16 @@ export class PostingService {
     if (createPostingRequestDto.isNotice && !studyMember.isManager) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: {
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+        dbUserId: Not(user.dbUserId),
+      },
+      relations: ['relUser'],
+    });
+    const fcmTokens = studyMembers.map(
+      (studyMember) => studyMember.relUser.fcmToken,
+    );
 
     const posting: Posting = new Posting();
     posting.title = createPostingRequestDto.title;
@@ -143,6 +155,11 @@ export class PostingService {
     posting.week = createPostingRequestDto.week;
 
     await this.postingRepository.save(posting);
+    await this.firebaseService.multiFcm(
+      fcmTokens,
+      '새로운 게시글이 등록되었습니다.',
+      createPostingRequestDto.title,
+    );
 
     return posting;
   }

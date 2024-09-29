@@ -19,6 +19,12 @@ interface AttendanceInfo {
   dbStudyInfoId: number;
 }
 
+interface CheckAttendanceResponse {
+  session: number;
+  startTime: string;
+  ttl: number;
+}
+
 @Injectable()
 export class AttendanceService {
   constructor(
@@ -98,6 +104,7 @@ export class AttendanceService {
     for (studyId of studyIds) {
       const key = `attendance:${studyId}`;
       const attendanceInfo = await this.cacheManager.get(key);
+        await this.cacheManager.get(key);
       if (attendanceInfo) {
         attendanceInfo['studyId'] = studyId;
         attendanceInfo['studyName'] = await this.studyInfoRepository
@@ -106,6 +113,18 @@ export class AttendanceService {
           })
           .then((studyInfo) => studyInfo?.studyName);
         return attendanceInfo;
+          where: { studyId },
+        });
+        attendanceInfo['studyName'] = studyInfo.studyName;
+        const studyMember = await this.studyMemberRepository.findOne({
+          where: {
+            dbUserId: user.dbUserId,
+            dbStudyInfoId: studyInfo.dbStudyInfoId,
+          },
+        });
+        return {
+          ...attendanceInfo,
+          isManager: studyMember.isManager,
       }
     }
     throw new HttpException('attendance Not Found', HttpStatus.NOT_FOUND); //출석 정보 없음

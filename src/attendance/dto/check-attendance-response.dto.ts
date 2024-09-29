@@ -21,4 +21,8 @@ export class CheckAttendanceResponseDto {
   @Expose()
   @ApiProperty({ type: Number, description: '출석 코드 만료 시간(sec)' })
   ttl: number;
+
+  @Expose()
+  @ApiProperty({ description: '스터디장 여부', type: Boolean })
+  isManager: boolean;
 }

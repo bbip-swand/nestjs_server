@@ -7,11 +7,12 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FirebaseService } from 'src/firebase/firebase.service';
 import { Archive } from 'src/models/archive.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { User } from 'src/models/user.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { GetUploadFilePresignedUrlRequestDto } from './dto/get-upload-file-presigned-url-request.dto';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class AwsS3Service {
     private studyInfoRepository: Repository<StudyInfo>,
     @InjectRepository(StudyMember)
     private studyMemberRepository: Repository<StudyMember>,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   async getImagePresignedUrl(fileName: string) {
@@ -67,6 +69,21 @@ export class AwsS3Service {
     if (!studyMember) {
       throw new Error('User is not a member of the study');
     }
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: {
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+        dbUserId: Not(user.dbUserId),
+      },
+      relations: ['relUser'],
+    });
+    const fcmTokens = studyMembers.map(
+      (studyMember) => studyMember.relUser.fcmToken,
+    );
+    await this.firebaseService.multiFcm(
+      fcmTokens,
+      '자료가 업로드 되었습니다.',
+      studyInfo.studyName,
+    );
     await this.archiveRepository.save({
       fileName,
       fileKey,

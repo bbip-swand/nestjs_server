@@ -121,4 +121,8 @@ export class StudyInfoDto {
   @Expose()
   @ApiProperty({ description: '스터디 멤버 정보', type: [StudyMembersDto] })
   studyMembers: StudyMembersDto[];
+
+  @Expose()
+  @ApiProperty({ type: String })
+  studyInviteCode: string;
 }

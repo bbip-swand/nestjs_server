@@ -2,6 +2,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FirebaseService } from 'src/firebase/firebase.service';
 import { Attendance } from 'src/models/attendance.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
@@ -20,10 +21,17 @@ interface AttendanceInfo {
   dbStudyInfoId: number;
 }
 
+interface CheckAttendanceResponse {
+  session: number;
+  startTime: string;
+  ttl: number;
+}
+
 @Injectable()
 export class AttendanceService {
   constructor(
     private readonly configService: ConfigService,
+    private firebaseService: FirebaseService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(StudyInfo)
     private studyInfoRepository: Repository<StudyInfo>,
@@ -45,8 +53,10 @@ export class AttendanceService {
       where: {
         dbStudyInfoId: studyInfo?.dbStudyInfoId,
       },
+      relations: ['relUser'],
     });
     //모든 스터디 멤버들의 출결 상황 ABSENT로 초기화
+    const fcmTokens = [];
     for (const studyMember of studyMembers) {
       if (studyMember.isManager) {
         await this.attendanceRepository.save({
@@ -57,6 +67,7 @@ export class AttendanceService {
           status: 'ATTENDED',
         });
       } else {
+        fcmTokens.push(studyMember.relUser.fcmToken);
         await this.attendanceRepository.save({
           dbUserId: studyMember.dbUserId,
           dbStudyInfoId: studyInfo.dbStudyInfoId,
@@ -84,9 +95,11 @@ export class AttendanceService {
       session: createAttendanceDto.session,
       code: authCode,
       startTime: currentTimeKST,
-      ttl: this.configService.get('REDIS_DEFAULT_TTL'),
+      ttl: +this.configService.get('REDIS_DEFAULT_TTL'),
       dbStudyInfoId: dbStudyInfoId,
     });
+    const title = `${studyInfo.studyName}`;
+    await this.firebaseService.multiFcm(fcmTokens, title, '출석 시작');
     return {
       code: authCode,
     };
@@ -97,15 +110,24 @@ export class AttendanceService {
     let studyId;
     for (studyId of studyIds) {
       const key = `attendance:${studyId}`;
-      const attendanceInfo = await this.cacheManager.get(key);
+      const attendanceInfo: CheckAttendanceResponse =
+        await this.cacheManager.get(key);
       if (attendanceInfo) {
         attendanceInfo['studyId'] = studyId;
-        attendanceInfo['studyName'] = await this.studyInfoRepository
-          .findOne({
-            where: { studyId },
-          })
-          .then((studyInfo) => studyInfo?.studyName);
-        return attendanceInfo;
+        const studyInfo = await this.studyInfoRepository.findOne({
+          where: { studyId },
+        });
+        attendanceInfo['studyName'] = studyInfo.studyName;
+        const studyMember = await this.studyMemberRepository.findOne({
+          where: {
+            dbUserId: user.dbUserId,
+            dbStudyInfoId: studyInfo.dbStudyInfoId,
+          },
+        });
+        return {
+          ...attendanceInfo,
+          isManager: studyMember.isManager,
+        };
       }
     }
     throw new HttpException('attendance Not Found', HttpStatus.NOT_FOUND); //출석 정보 없음

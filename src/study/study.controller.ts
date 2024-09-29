@@ -7,8 +7,8 @@ import { CreateStudyDto } from './dto/create-study.dto';
 import { IndividualStudyResponseDto } from './dto/individual-study-response.dto';
 import { StudyInviteResponseDto } from './dto/study-invite-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
-import { StudyService } from './study.service';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
+import { StudyService } from './study.service';
 
 @MemberJwtController('study')
 export class StudyController {
@@ -40,12 +40,6 @@ export class StudyController {
   })
   findByInviteCode(@Param('inviteCode') inviteCode: string) {
     return this.studyService.findByInviteCode(inviteCode);
-  }
-
-  @Get('/inviteCode/:studyId')
-  @ApiOperation({ summary: '스터디 초대 코드 조회' })
-  getInviteCode(@Param('studyId') studyId: string, @Request() req) {
-    return this.studyService.getInviteCode(studyId, req.user);
   }
 
   @Get('/ongoing')

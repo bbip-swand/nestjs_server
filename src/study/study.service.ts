@@ -234,22 +234,6 @@ export class StudyService {
     return result;
   }
 
-  async getInviteCode(studyId: string, user: User) {
-    const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
-      where: { studyId },
-    });
-    if (!studyInfo) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-    if (studyInfo.studyLeaderId !== user.dbUserId) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-    }
-    const result = {
-      studyInviteCode: studyInfo.studyInviteCode,
-    };
-    return result;
-  }
-
   async findFinishedStudyList(user: any): Promise<StudyBriefInfoResponseDto[]> {
     const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
       where: { dbUserId: user.dbUserId },

@@ -95,7 +95,7 @@ export class AttendanceService {
       session: createAttendanceDto.session,
       code: authCode,
       startTime: currentTimeKST,
-      ttl: this.configService.get('REDIS_DEFAULT_TTL'),
+      ttl: +this.configService.get('REDIS_DEFAULT_TTL'),
       dbStudyInfoId: dbStudyInfoId,
     });
     const title = `${studyInfo.studyName}`;

@@ -11,6 +11,10 @@ export class CreatePostingRequestDto {
   title: string;
 
   @Expose()
+  @ApiProperty({ description: '주차', type: Number })
+  week: number;
+
+  @Expose()
   @ApiProperty({ description: '내용', type: String })
   content: string;
 

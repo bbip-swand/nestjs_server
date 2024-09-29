@@ -45,6 +45,9 @@ export class Posting extends CreateDateEntity {
   @Column()
   content: string;
 
+  @Column()
+  week: number;
+
   @Column({ default: false })
   isNotice: boolean;
 

@@ -10,6 +10,7 @@ import { User } from 'src/models/user.entity';
 import { Repository } from 'typeorm';
 import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
 import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
+import * as moment from 'moment-timezone';
 
 interface AttendanceInfo {
   session: number;
@@ -75,9 +76,8 @@ export class AttendanceService {
     }
 
     const key = `attendance:${createAttendanceDto.studyId}`;
-    const currentTimeKST = new Date().toLocaleString('ko-KR', {
-      timeZone: 'Asia/Seoul',
-    });
+    const currentTimeKST = moment.utc().add(9, 'hours').format();
+    console.log(currentTimeKST);
     const authCode = this.generateAuthCode();
     //해당 스터디의 스터디원들의 현재 주차의 출석을 결석으로 생성
     await this.cacheManager.set(key, {

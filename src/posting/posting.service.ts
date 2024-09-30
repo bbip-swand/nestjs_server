@@ -81,7 +81,15 @@ export class PostingService {
     if (!studyMember) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    const { relStudyInfo, ...result } = posting;
+    const { relStudyInfo, dbPostingId, ...rest } = posting;
+    const writer = await this.userInfoRepository.findOne({
+      where: { dbUserId: posting.writer.dbUserId },
+    });
+    const result = {
+      studyName: relStudyInfo.studyName,
+      writer: writer.name,
+      ...rest,
+    };
     return result;
   }
 

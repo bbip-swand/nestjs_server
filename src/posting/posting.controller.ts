@@ -29,7 +29,7 @@ export class PostingController {
     return this.postingService.findAllPosting(studyId, req.user);
   }
 
-  @Get('/deatils/:postingId')
+  @Get('/details/:postingId')
   @ApiOperation({ summary: '게시글 단건 조회 (댓글까지 세부 조회)' })
   findOne(@Param('postingId') postingId: string, @Request() req) {
     return this.postingService.findOne(postingId, req.user);

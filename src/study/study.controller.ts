@@ -1,4 +1,4 @@
-import { Body, Get, Param, Post, Request } from '@nestjs/common';
+import { Body, Get, Param, Post, Put, Request } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
@@ -8,6 +8,7 @@ import { IndividualStudyResponseDto } from './dto/individual-study-response.dto'
 import { StudyInviteResponseDto } from './dto/study-invite-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
+import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { StudyService } from './study.service';
 
 @MemberJwtController('study')
@@ -74,5 +75,18 @@ export class StudyController {
   @ApiOperation({ summary: '스터디 참여' })
   joinStudy(@Param('studyId') studyId: string, @Request() req) {
     return this.studyService.joinStudy(studyId, req.user);
+  }
+
+  @Put('/place/:studyId')
+  @ApiOperation({ summary: '스터디 장소 수정' })
+  @RestMethod({
+    request: UpdatePlaceRequestDto,
+  })
+  updatePlace(
+    @Param('studyId') studyId: string,
+    @Request() req,
+    @Body() dto: UpdatePlaceRequestDto,
+  ) {
+    return this.studyService.updatePlace(studyId, req.user, dto);
   }
 }

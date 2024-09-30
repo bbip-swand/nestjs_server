@@ -61,4 +61,8 @@ export class IndividualStudyResponseDto {
   @Expose()
   @ApiProperty({ description: '스터디 내용', type: String })
   studyContent: string;
+
+  @Expose()
+  @ApiProperty({ description: '스터디 장소', type: String })
+  place: string;
 }

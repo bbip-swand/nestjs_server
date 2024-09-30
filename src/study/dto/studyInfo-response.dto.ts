@@ -125,4 +125,8 @@ export class StudyInfoDto {
   @Expose()
   @ApiProperty({ type: String })
   studyInviteCode: string;
+
+  @Expose()
+  @ApiProperty({ type: String })
+  place: string;
 }

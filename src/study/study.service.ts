@@ -10,6 +10,7 @@ import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { CreateStudyDto } from './dto/create-study.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
+import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 
 @Injectable()
 export class StudyService {
@@ -124,6 +125,7 @@ export class StudyService {
       currentWeek: currentWeekContent[0].week,
       pendingDate,
       pendingDateIndex,
+      place: currentWeekContent[0].place,
     };
 
     return result;
@@ -205,6 +207,7 @@ export class StudyService {
                 dayOfWeek: dayOfWeek,
                 studyTime: studyInfo.studyTimes[index],
                 studyContent: studyContent.content,
+                place: studyContent.place,
               };
             }),
           );
@@ -427,5 +430,36 @@ export class StudyService {
       dbStudyInfoId: studyinfo.dbStudyInfoId,
     });
     return newStudyMember;
+  }
+
+  async updatePlace(studyId: string, user: User, dto: UpdatePlaceRequestDto) {
+    const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId },
+    });
+    if (!studyInfo) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    const studyMember: StudyMember = await this.studyMemberRepository.findOne({
+      where: {
+        dbUserId: user.dbUserId,
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+      },
+    });
+    if (studyMember || !studyMember.isManager) {
+      throw new HttpException('Not Authorized', HttpStatus.UNAUTHORIZED);
+    }
+    try {
+      const { place, session } = dto;
+      await this.weeklyStudyContentRepository.update(
+        { dbStudyInfoId: studyInfo.dbStudyInfoId, week: session },
+        { place },
+      );
+      return { place };
+    } catch (e) {
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

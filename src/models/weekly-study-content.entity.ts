@@ -16,6 +16,9 @@ export class WeeklyStudyContent extends UpdateDateEntity {
   @Column()
   week: number;
 
+  @Column({ nullable: false, default: '' })
+  place: string;
+
   @Column({ type: 'date' })
   studyStartDate: Date;
 

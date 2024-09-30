@@ -1,5 +1,6 @@
 import {
   GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -100,14 +101,31 @@ export class AwsS3Service {
     fileName: string;
     fileKey: string;
   }) {
-    const command = new GetObjectCommand({
+    const getObjectCommand = new GetObjectCommand({
       Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
       Key: `Archive/${fileKey}`,
       ResponseContentDisposition: `attachment; filename="${fileName}"`,
     });
-    const fileUrl = await getSignedUrl(this.s3Client, command, {
+    const fileUrl = await getSignedUrl(this.s3Client, getObjectCommand, {
       expiresIn: 60 * 60 * 24 * 7,
     });
-    return fileUrl;
+    const headObjectCommand = new HeadObjectCommand({
+      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
+      Key: `Archive/${fileKey}`,
+    });
+    const data = await this.s3Client.send(headObjectCommand);
+    const ContentLength = data.ContentLength;
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      const size = parseFloat((bytes / Math.pow(1024, i)).toFixed(1));
+      return `${size}${sizes[i]}`;
+    }
+    const fileSize = formatBytes(ContentLength);
+    return {
+      fileUrl,
+      fileSize,
+    };
   }
 }

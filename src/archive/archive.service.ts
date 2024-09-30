@@ -46,13 +46,14 @@ export class ArchiveService {
     });
     const result = await Promise.all(
       archives.map(async (archive) => {
-        const fileUrl = await this.AwsS3Service.getPresignedUrl({
+        const { fileUrl, fileSize } = await this.AwsS3Service.getPresignedUrl({
           fileName: archive.fileName,
           fileKey: archive.fileKey,
         });
         return {
           fileName: archive.fileName,
           fileUrl,
+          fileSize,
           createdAt: archive.createdAt,
         };
       }),

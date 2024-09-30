@@ -218,6 +218,25 @@ export class StudyService {
     return flattenedStudyInfos;
   }
 
+  async findPendingStudy(user: User) {
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: { dbUserId: user.dbUserId },
+    });
+    const studyIds: number[] = studyMembers.map(
+      (studyMember) => studyMember.dbStudyInfoId,
+    );
+
+    const now = moment.tz('Asia/Seoul');
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+    const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
+      where: {
+        dbStudyInfoId: In(studyIds),
+        studyStartDate: LessThanOrEqual(todayDate),
+        studyEndDate: MoreThanOrEqual(todayDate),
+      },
+    });
+  }
+
   async findByInviteCode(inviteCode: string): Promise<StudyInfo> {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyInviteCode: inviteCode },

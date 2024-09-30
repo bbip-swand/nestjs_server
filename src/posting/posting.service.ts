@@ -81,13 +81,26 @@ export class PostingService {
     if (!studyMember) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    const { relStudyInfo, dbPostingId, ...rest } = posting;
+    const { relStudyInfo, dbPostingId, relComment, ...rest } = posting;
     const writer = await this.userInfoRepository.findOne({
       where: { dbUserId: posting.writer.dbUserId },
     });
+    const comments = await Promise.all(
+      relComment.map(async (comment) => {
+        const writer = await this.userInfoRepository.findOne({
+          where: { dbUserId: comment.writer.dbUserId },
+        });
+        return {
+          writer: writer.name,
+          content: comment.content,
+          createdAt: comment.createdAt,
+        };
+      }),
+    );
     const result = {
       studyName: relStudyInfo.studyName,
       writer: writer.name,
+      comments,
       ...rest,
     };
     return result;

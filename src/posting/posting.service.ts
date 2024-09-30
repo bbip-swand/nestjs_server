@@ -96,6 +96,8 @@ export class PostingService {
         });
         return {
           writer: commentWriterInfo.name,
+          isManager: commentWriter.writer.isManager,
+          profileImageUrl: commentWriterInfo.profileImageUrl,
           content: comment.content,
           createdAt: comment.createdAt,
         };
@@ -104,6 +106,8 @@ export class PostingService {
     const result = {
       studyName: relStudyInfo.studyName,
       writer: writerInfo.name,
+      isManager: writer.isManager,
+      profileImageUrl: writerInfo.profileImageUrl,
       comments,
       ...rest,
     };

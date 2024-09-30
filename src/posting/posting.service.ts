@@ -44,7 +44,7 @@ export class PostingService {
         createdAt: Between(weekAgoDate, todayDate),
       },
       relations: ['relStudyInfo', 'writer'],
-      order: { createdAt: 'ASC' },
+      order: { createdAt: 'DESC' },
       take: 10,
     });
     const writer = await this.userInfoRepository.findOne({

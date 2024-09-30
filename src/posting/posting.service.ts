@@ -67,7 +67,7 @@ export class PostingService {
   async findOne(postingId: string, user) {
     const posting: Posting = await this.postingRepository.findOne({
       where: { postingId },
-      relations: ['relComment', 'relStudyInfo'],
+      relations: ['relComment', 'relStudyInfo', 'writer'],
     });
     if (!posting) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
@@ -81,17 +81,21 @@ export class PostingService {
     if (!studyMember) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    const { relStudyInfo, dbPostingId, relComment, ...rest } = posting;
-    const writer = await this.userInfoRepository.findOne({
+    const { relStudyInfo, dbPostingId, relComment, writer, ...rest } = posting;
+    const writerInfo = await this.userInfoRepository.findOne({
       where: { dbUserId: posting.writer.dbUserId },
     });
     const comments = await Promise.all(
       relComment.map(async (comment) => {
-        const writer = await this.userInfoRepository.findOne({
-          where: { dbUserId: comment.writer.dbUserId },
+        const commentWriter = await this.commentRepository.findOne({
+          where: { dbCommentId: comment.dbCommentId },
+          relations: ['writer'],
+        });
+        const commentWriterInfo = await this.userInfoRepository.findOne({
+          where: { dbUserId: commentWriter.writer.dbUserId },
         });
         return {
-          writer: writer.name,
+          writer: commentWriterInfo.name,
           content: comment.content,
           createdAt: comment.createdAt,
         };
@@ -99,7 +103,7 @@ export class PostingService {
     );
     const result = {
       studyName: relStudyInfo.studyName,
-      writer: writer.name,
+      writer: writerInfo.name,
       comments,
       ...rest,
     };

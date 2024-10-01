@@ -29,7 +29,7 @@ export class StudyService {
     private attendanceRepository: Repository<Attendance>,
   ) {}
 
-  async findOne(studyId: string) {
+  async findOne(studyId: string, user: User) {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyId },
     });
@@ -67,6 +67,11 @@ export class StudyService {
           interest: userInfo.interest,
         };
       }),
+    );
+    //요청한 유저가 스터디장인지 확인
+    const isManager = studyMembers.some(
+      (studyMember) =>
+        studyMember.dbUserId === user.dbUserId && studyMember.isManager,
     );
     const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
     const currentWeekContent = await this.weeklyStudyContentRepository.find({
@@ -141,6 +146,7 @@ export class StudyService {
       pendingDateIndex,
       place: currentWeekContent[0].place,
       session,
+      isManager,
     };
 
     return result;

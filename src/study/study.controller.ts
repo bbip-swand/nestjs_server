@@ -30,8 +30,8 @@ export class StudyController {
   @RestMethod({
     response: StudyInfoDto,
   })
-  findOne(@Param('studyId') studyId: string) {
-    return this.studyService.findOne(studyId);
+  findOne(@Param('studyId') studyId: string, @Request() req) {
+    return this.studyService.findOne(studyId, req.user);
   }
 
   @Get('/invite-info/:inviteCode')

@@ -47,6 +47,10 @@ export class StudyInfoDto {
   studyField: number;
 
   @Expose()
+  @ApiProperty({ description: '스터디장 여부', type: Boolean })
+  isManager: boolean;
+
+  @Expose()
   @ApiProperty({ description: '총 진행 주차', type: Number })
   totalWeeks: number;
 

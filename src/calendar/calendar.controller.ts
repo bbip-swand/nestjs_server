@@ -1,8 +1,8 @@
 import { Body, Get, Param, Post, Put, Request } from '@nestjs/common';
-import { CalendarService } from './calendar.service';
-import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { ApiOperation } from '@nestjs/swagger';
+import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
+import { CalendarService } from './calendar.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { ScheduleInfoResponseDto } from './dto/scheduleInfo-response.dto';
 
@@ -26,17 +26,17 @@ export class CalendarController {
     return this.calendarService.getCalendarListByMonth(year, month, req.user);
   }
 
-  @Get('list/:date')
-  @ApiOperation({
-    summary: '특정 날짜 일정 목록 조회',
-    description: 'date예시 : 2024-09-16, 아무것도 없을 시 [] 반환',
-  })
-  @RestMethod({
-    response: ScheduleInfoResponseDto,
-  })
-  async getScheduleList(@Param('date') date: string, @Request() req) {
-    return this.calendarService.getScheduleList(date, req.user);
-  }
+  // @Get('list/:date')
+  // @ApiOperation({
+  //   summary: '특정 날짜 일정 목록 조회',
+  //   description: 'date예시 : 2024-09-16, 아무것도 없을 시 [] 반환',
+  // })
+  // @RestMethod({
+  //   response: ScheduleInfoResponseDto,
+  // })
+  // async getScheduleList(@Param('date') date: string, @Request() req) {
+  //   return this.calendarService.getScheduleList(date, req.user);
+  // }
 
   @Get('schedule/upcoming')
   @ApiOperation({

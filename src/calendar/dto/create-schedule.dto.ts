@@ -13,18 +13,18 @@ export class CreateScheduleDto {
   @Expose()
   @ApiProperty({
     description: '시작일',
-    type: String,
-    example: '2024-09-15 15:00:00',
+    type: Date,
+    example: '2024-09-16T00:00:00.000Z',
   })
-  startDate: string;
+  startDate: Date;
 
   @Expose()
   @ApiProperty({
     description: '종료일',
-    type: String,
-    example: '2024-09-15 18:00:00',
+    type: Date,
+    example: '2024-09-17T00:00:00.000Z',
   })
-  endDate: string;
+  endDate: Date;
 
   @Expose()
   @ApiProperty({ description: '홈뷰 여부', type: Boolean })

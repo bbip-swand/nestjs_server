@@ -68,11 +68,7 @@ export class StudyService {
         };
       }),
     );
-    //요청한 유저가 스터디장인지 확인
-    const isManager = studyMembers.some(
-      (studyMember) =>
-        studyMember.dbUserId === user.dbUserId && studyMember.isManager,
-    );
+    const isManager = studyInfo.studyLeaderId === user.dbUserId;
     const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
     const currentWeekContent = await this.weeklyStudyContentRepository.find({
       where: {

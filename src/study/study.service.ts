@@ -263,6 +263,7 @@ export class StudyService {
     const individualStudyDateAndTime = studyInfos.flatMap((studyInfo) => {
       const startDate = moment(studyInfo.studyStartDate);
       const weekNumber = now.diff(startDate, 'weeks') + 1;
+      console.log(weekNumber);
       const studyDateAndTimes = studyInfo.daysOfWeek.flatMap(
         (dayOfWeek, index) => {
           let studyDate;
@@ -566,8 +567,8 @@ export class StudyService {
         dbStudyInfoId: studyInfo.dbStudyInfoId,
       },
     });
-    if (studyMember || !studyMember.isManager) {
-      throw new HttpException('Not Authorized', HttpStatus.UNAUTHORIZED);
+    if (!studyMember || !studyMember.isManager) {
+      throw new HttpException('Not a manager', HttpStatus.UNAUTHORIZED);
     }
     try {
       const { place, session } = dto;

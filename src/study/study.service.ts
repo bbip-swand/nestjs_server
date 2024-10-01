@@ -202,11 +202,10 @@ export class StudyService {
           return await Promise.all(
             studyInfo.daysOfWeek.map(async (dayOfWeek, index) => {
               const dayDiff = now.diff(startDate, 'days');
-              const plusDays = dayDiff % 7 === 0 ? 0 : 7 - (dayDiff % 7);
               const weekNumber = now.diff(startDate, 'weeks') + 1;
               const studyDate = startDate
                 .clone()
-                .add(plusDays + todayDayOfWeek - dayOfWeek, 'days');
+                .add(dayDiff + dayOfWeek - todayDayOfWeek, 'days');
 
               const studyContent =
                 await this.weeklyStudyContentRepository.findOne({

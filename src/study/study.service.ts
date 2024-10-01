@@ -278,6 +278,25 @@ export class StudyService {
     return response;
   }
 
+  async findMyStudyList(user: User) {
+    const now = moment.tz('Asia/Seoul');
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+    const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
+      where: {
+        studyLeaderId: user.dbUserId,
+        studyStartDate: LessThanOrEqual(todayDate),
+        studyEndDate: MoreThanOrEqual(todayDate),
+      },
+    });
+    const result = studyInfos.map((studyInfo) => {
+      return {
+        studyId: studyInfo.studyId,
+        studyName: studyInfo.studyName,
+      };
+    });
+    return result;
+  }
+
   async findOngoingStudyList(user: User): Promise<StudyBriefInfoResponseDto[]> {
     const studyMembers = await this.studyMemberRepository.find({
       where: { dbUserId: user.dbUserId },

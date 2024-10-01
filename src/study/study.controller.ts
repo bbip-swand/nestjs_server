@@ -43,6 +43,12 @@ export class StudyController {
     return this.studyService.findByInviteCode(inviteCode);
   }
 
+  @Get('/my-study')
+  @ApiOperation({ summary: '내가 스터디장이며 진행중인 스터디 목록 조회' })
+  findMyStudyList(@Request() req) {
+    return this.studyService.findMyStudyList(req.user);
+  }
+
   @Get('/ongoing')
   @ApiOperation({ summary: '진행중인 스터디 목록 조회' })
   @RestMethod({

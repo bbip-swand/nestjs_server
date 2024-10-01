@@ -42,7 +42,7 @@ export class StudyService {
       take: 1,
     });
     let session: number;
-    if (!recentAttendance) {
+    if (recentAttendance.length === 0) {
       session = 1;
     } else {
       session = recentAttendance[0].session + 1;

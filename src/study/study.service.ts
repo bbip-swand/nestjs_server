@@ -156,7 +156,6 @@ export class StudyService {
     );
 
     const now = moment.tz('Asia/Seoul');
-    // 오늘 기준으로 그 다음주의 월요일 날짜 구함
 
     const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
     const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
@@ -201,11 +200,10 @@ export class StudyService {
 
           return await Promise.all(
             studyInfo.daysOfWeek.map(async (dayOfWeek, index) => {
-              const dayDiff = now.diff(startDate, 'days');
               const weekNumber = now.diff(startDate, 'weeks') + 1;
-              const studyDate = startDate
+              const studyDate = now
                 .clone()
-                .add(dayDiff + dayOfWeek - todayDayOfWeek, 'days');
+                .add(dayOfWeek - todayDayOfWeek, 'days');
 
               const studyContent =
                 await this.weeklyStudyContentRepository.findOne({

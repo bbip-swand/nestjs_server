@@ -203,10 +203,11 @@ export class StudyService {
             studyInfo.daysOfWeek.map(async (dayOfWeek, index) => {
               const studyDateDayOfWeek =
                 startDate.day() === 0 ? 6 : startDate.day() - 1;
+              const weekNumber = now.diff(startDate, 'weeks') + 1;
               const studyDate = startDate
                 .clone()
+                .add(weekNumber - 1, 'weeks')
                 .add(dayOfWeek + 7 - studyDateDayOfWeek, 'days');
-              const weekNumber = studyDate.diff(startDate, 'weeks') + 1;
 
               const studyContent =
                 await this.weeklyStudyContentRepository.findOne({

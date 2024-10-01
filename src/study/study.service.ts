@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment-timezone';
+import { Attendance } from 'src/models/attendance.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
@@ -9,11 +10,9 @@ import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { CreateStudyDto } from './dto/create-study.dto';
+import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
-import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
-import { Attendance } from 'src/models/attendance.entity';
-import { start } from 'repl';
 
 @Injectable()
 export class StudyService {
@@ -234,159 +233,85 @@ export class StudyService {
   }
 
   async findPendingStudy(user: User): Promise<pendingstudyResponseDto> {
-    const currentWeekStudyInfo = await this.findThisWeekStudyList(user);
-    if (!currentWeekStudyInfo) {
-      const studyMembers: StudyMember[] = await this.studyMemberRepository.find(
-        {
-          where: { dbUserId: user.dbUserId },
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: { dbUserId: user.dbUserId },
+    });
+    const studyIds: number[] = studyMembers.map(
+      (studyMember) => studyMember.dbStudyInfoId,
+    );
+
+    const now = moment.tz('Asia/Seoul');
+
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+    const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
+      where: {
+        dbStudyInfoId: In(studyIds),
+        studyStartDate: LessThanOrEqual(todayDate),
+        studyEndDate: MoreThanOrEqual(todayDate),
+      },
+      relations: ['relWeeklyStudyContent'],
+    });
+    const todayDayOfWeek: number = now.day() === 0 ? 6 : now.day() - 1;
+    const nowTime = moment(now, 'HH:mm');
+
+    const individualStudyDateAndTime = studyInfos.flatMap((studyInfo) => {
+      const startDate = moment(studyInfo.studyStartDate);
+      const weekNumber = now.diff(startDate, 'weeks') + 1;
+      const studyDateAndTimes = studyInfo.daysOfWeek.flatMap(
+        (dayOfWeek, index) => {
+          let studyDate;
+          if (+dayOfWeek > todayDayOfWeek) {
+            studyDate = now.clone().add(+dayOfWeek - todayDayOfWeek, 'days');
+          } else if (+dayOfWeek < todayDayOfWeek) {
+            studyDate = now
+              .clone()
+              .add(+dayOfWeek + 7 - todayDayOfWeek, 'days');
+          } else {
+            studyDate = nowTime.isAfter(
+              moment(studyInfo.studyTimes[index].startTime, 'HH:mm'),
+            )
+              ? now.clone().add(1, 'weeks')
+              : now.clone();
+          }
+          const leftDays = studyDate.diff(todayDate, 'days');
+          return {
+            studyDate,
+            dayOfWeek,
+            studyTime: studyInfo.studyTimes[index],
+            leftDays,
+          };
         },
       );
-      const studyIds: number[] = studyMembers.map(
-        (studyMember) => studyMember.dbStudyInfoId,
+      return studyDateAndTimes.map((studyDateAndTime) => {
+        return {
+          studyId: studyInfo.studyId,
+          studyName: studyInfo.studyName,
+          studyWeek: weekNumber,
+          startDate: studyInfo.studyStartDate,
+          studyDate: studyDateAndTime.studyDate.format('YYYY-MM-DD'),
+          studyTime: studyDateAndTime.studyTime,
+          leftDays: studyDateAndTime.leftDays,
+          place: studyInfo.relWeeklyStudyContent[weekNumber - 1].place,
+        };
+      });
+    });
+    if (individualStudyDateAndTime.length === 0) {
+      throw new HttpException(
+        '진행 중인 스터디가 없습니다.',
+        HttpStatus.NOT_FOUND,
       );
-      const now = moment().utc().add(9, 'hours');
-      const nextMonday = now.clone().startOf('isoWeek').add(1, 'week');
-      const todayDate: Date = new Date(nextMonday.format('YYYY-MM-DD'));
-      const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
-        where: {
-          dbStudyInfoId: In(studyIds),
-          studyStartDate: LessThanOrEqual(todayDate),
-          studyEndDate: MoreThanOrEqual(todayDate),
-        },
-      });
-
-      const todayDayOfWeek: number =
-        nextMonday.day() === 0 ? 6 : nextMonday.day() - 1;
-      const nowTime = moment(nextMonday, 'HH:mm');
-
-      const filteredStudyInfos = await Promise.all(
-        studyInfos
-          .map((studyInfo) => {
-            const filteredTimePairs = studyInfo.daysOfWeek
-              .map((dayOfWeek, index) => ({
-                dayOfWeek,
-                studyTime: studyInfo.studyTimes[index],
-              }))
-              .filter(
-                (timePair) =>
-                  +timePair.dayOfWeek > todayDayOfWeek ||
-                  (+timePair.dayOfWeek === todayDayOfWeek &&
-                    !nowTime.isAfter(
-                      moment(timePair.studyTime.startTime, 'HH:mm'),
-                    )),
-              );
-
-            return {
-              ...studyInfo,
-              daysOfWeek: filteredTimePairs.map(
-                (timePair) => +timePair.dayOfWeek,
-              ),
-              studyTimes: filteredTimePairs.map(
-                (timePair) => timePair.studyTime,
-              ),
-            };
-          })
-          .filter((studyInfo) => studyInfo.daysOfWeek.length > 0)
-          .flatMap(async (studyInfo) => {
-            const startDate = moment(studyInfo.studyStartDate);
-
-            return await Promise.all(
-              studyInfo.daysOfWeek.map(async (dayOfWeek, index) => {
-                const studyDateDayOfWeek =
-                  startDate.day() === 0 ? 6 : startDate.day() - 1;
-                const studyDate = startDate
-                  .clone()
-                  .add(dayOfWeek + 7 - studyDateDayOfWeek, 'days');
-                const weekNumber = studyDate.diff(startDate, 'weeks') + 1;
-
-                const studyContent =
-                  await this.weeklyStudyContentRepository.findOne({
-                    where: {
-                      dbStudyInfoId: studyInfo.dbStudyInfoId,
-                      week: weekNumber,
-                    },
-                  });
-                return {
-                  studyId: studyInfo.studyId,
-                  studyName: studyInfo.studyName,
-                  studyWeek: weekNumber,
-                  studyImageUrl: studyInfo.studyImageUrl,
-                  studyField: studyInfo.studyField,
-                  studyDate: studyDate.format('YYYY-MM-DD'),
-                  dayOfWeek: dayOfWeek,
-                  studyTime: studyInfo.studyTimes[index],
-                  studyContent: studyContent.content,
-                  place: studyContent.place,
-                };
-              }),
-            );
-          }),
-      );
-      const flattenedStudyInfos = filteredStudyInfos.flat();
-      const pendingStudyInfo = flattenedStudyInfos.reduce((prev, curr) => {
-        const prevDate = moment(prev.studyDate);
-        const currDate = moment(curr.studyDate);
-        if (prevDate.isBefore(currDate)) {
-          return prev;
-        } else if (prevDate.isAfter(currDate)) {
-          return curr;
-        } else {
-          const prevTime = moment(prev.studyTime.startTime, 'HH:mm');
-          const currTime = moment(curr.studyTime.startTime, 'HH:mm');
-          if (prevTime.isBefore(currTime)) {
-            return prev;
-          } else {
-            return curr;
-          }
-        }
-      });
-      console.log(moment());
-      const response = {
-        studyId: pendingStudyInfo.studyId,
-        studyName: pendingStudyInfo.studyName,
-        studyWeek: pendingStudyInfo.studyWeek,
-        studyTime: `${pendingStudyInfo.studyTime.startTime} - ${pendingStudyInfo.studyTime.endTime}`,
-        leftDays: moment(pendingStudyInfo.studyDate).diff(
-          moment().utc().add(9, 'hours').format('YYYY-MM-DD'),
-          'days',
-        ),
-        place: pendingStudyInfo.place,
-        startDate: pendingStudyInfo.studyDate,
-      };
-      return response;
-    } else {
-      const pendingStudyInfo = currentWeekStudyInfo.reduce((prev, curr) => {
-        const prevDate = moment(prev.studyDate);
-        const currDate = moment(curr.studyDate);
-        if (prevDate.isBefore(currDate)) {
-          return prev;
-        } else if (prevDate.isAfter(currDate)) {
-          return curr;
-        } else {
-          const prevTime = moment(prev.studyTime.startTime, 'HH:mm');
-          const currTime = moment(curr.studyTime.startTime, 'HH:mm');
-          if (prevTime.isBefore(currTime)) {
-            return prev;
-          } else {
-            return curr;
-          }
-        }
-      });
-      console.log(moment().utc().add(9, 'hours').format('YYYY-MM-DD'));
-      const response = {
-        studyId: pendingStudyInfo.studyId,
-        studyName: pendingStudyInfo.studyName,
-        studyWeek: pendingStudyInfo.studyWeek,
-        studyTime: `${pendingStudyInfo.studyTime.startTime} - ${pendingStudyInfo.studyTime.endTime}`,
-        leftDays: moment(pendingStudyInfo.studyDate).diff(
-          moment().utc().add(9, 'hours').format('YYYY-MM-DD'),
-          'days',
-        ),
-        place: pendingStudyInfo.place,
-        startDate: pendingStudyInfo.studyDate,
-      };
-      return response;
     }
+
+    individualStudyDateAndTime.sort((a, b) => {
+      if (a.leftDays === b.leftDays) {
+        const aTime = moment(a.studyTime.startTime, 'HH:mm');
+        const bTime = moment(b.studyTime.startTime, 'HH:mm');
+        return aTime.isBefore(bTime) ? -1 : 1;
+      }
+      return a.leftDays - b.leftDays;
+    });
+    const pendingStudy = individualStudyDateAndTime[0];
+    return pendingStudy;
   }
 
   async findByInviteCode(inviteCode: string): Promise<StudyInfo> {

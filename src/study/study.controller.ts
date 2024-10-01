@@ -5,12 +5,12 @@ import { RestMethod } from 'src/utils/decorators/rest-method';
 import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
 import { CreateStudyDto } from './dto/create-study.dto';
 import { IndividualStudyResponseDto } from './dto/individual-study-response.dto';
+import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
 import { StudyInviteResponseDto } from './dto/study-invite-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { StudyService } from './study.service';
-import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
 
 @MemberJwtController('study')
 export class StudyController {

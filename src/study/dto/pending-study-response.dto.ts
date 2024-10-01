@@ -20,7 +20,7 @@ export class pendingstudyResponseDto {
     type: String,
     example: '2024-10-02',
   })
-  startDate: string;
+  startDate: Date;
 
   @Expose()
   @ApiProperty({
@@ -28,7 +28,10 @@ export class pendingstudyResponseDto {
     type: String,
     example: '14:00 - 16:00',
   })
-  studyTime: string;
+  studyTime: {
+    startTime: string;
+    endTime: string;
+  };
 
   @Expose()
   @ApiProperty({ description: 'd-day', type: Number })

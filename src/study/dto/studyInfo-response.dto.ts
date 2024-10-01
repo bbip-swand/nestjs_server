@@ -55,6 +55,10 @@ export class StudyInfoDto {
   currentWeek: number;
 
   @Expose()
+  @ApiProperty({ description: '스터디 회차', type: Number })
+  session: number;
+
+  @Expose()
   @ApiProperty({ description: '이번주 스터디 진행 날짜', type: String })
   pendingDate: string;
 

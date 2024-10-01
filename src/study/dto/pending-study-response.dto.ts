@@ -15,6 +15,10 @@ export class pendingstudyResponseDto {
   studyWeek: number;
 
   @Expose()
+  @ApiProperty({ description: '스터디 시작 날짜', type: String })
+  startDate: string;
+
+  @Expose()
   @ApiProperty({ description: '스터디 진행 시간', type: String })
   studyTime: string;
 

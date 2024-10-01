@@ -11,6 +11,7 @@ import { StudyController } from './study.controller';
 import { StudyService } from './study.service';
 import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
+import { Attendance } from 'src/models/attendance.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserInfo } from 'src/models/user-info.entity';
       WeeklyStudyContent,
       StudyMember,
       UserInfo,
+      Attendance,
     ]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),

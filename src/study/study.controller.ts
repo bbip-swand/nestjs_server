@@ -10,6 +10,7 @@ import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { StudyService } from './study.service';
+import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
 
 @MemberJwtController('study')
 export class StudyController {
@@ -65,6 +66,15 @@ export class StudyController {
   })
   findFinishedStudyList(@Request() req) {
     return this.studyService.findFinishedStudyList(req.user);
+  }
+
+  @Get('/pending')
+  @ApiOperation({ summary: '가장 임박한 스터디 조회' })
+  @RestMethod({
+    response: pendingstudyResponseDto,
+  })
+  findPendingStudy(@Request() req) {
+    return this.studyService.findPendingStudy(req.user);
   }
 
   @Post('create')

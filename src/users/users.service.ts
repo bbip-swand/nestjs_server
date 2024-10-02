@@ -112,6 +112,7 @@ export class UsersService {
 
     await this.usersRepository.delete({ dbUserId: user.dbUserId });
     await this.studyInfoRepository.delete({ studyLeaderId: user.dbUserId });
+    await this.studyMemberRepository.delete({ dbUserId: user.dbUserId });
 
     return { message: 'success' };
   }

@@ -7,6 +7,7 @@ import { AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
 import { lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
+import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
@@ -22,6 +23,8 @@ export class UsersService {
     private usersRepository: Repository<User>,
     @InjectRepository(UserInfo)
     private userInfoRepository: Repository<UserInfo>,
+    @InjectRepository(StudyInfo)
+    private studyInfoRepository: Repository<StudyInfo>,
     @InjectRepository(StudyMember)
     private studyMemberRepository: Repository<StudyMember>,
     private authService: AuthService,
@@ -108,6 +111,7 @@ export class UsersService {
     });
 
     await this.usersRepository.delete({ dbUserId: user.dbUserId });
+    await this.studyInfoRepository.delete({ studyLeaderId: user.dbUserId });
 
     return { message: 'success' };
   }

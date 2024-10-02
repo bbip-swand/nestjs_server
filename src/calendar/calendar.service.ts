@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as moment from 'moment-timezone';
 import { Calendar } from 'src/models/calendar.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { User } from 'src/models/user.entity';
 import { Between, In, Repository } from 'typeorm';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
-import * as moment from 'moment-timezone';
 @Injectable()
 export class CalendarService {
   constructor(
@@ -141,12 +141,12 @@ export class CalendarService {
 
   async getCalendarListByMonth(year: number, month: number, user: User) {
     const startDate = moment
-      .tz({ year, month: month - 1, day: 1 }, 'UTC')
-      .startOf('day')
+      .tz({ year, month: month - 1 }, 'UTC')
+      .startOf('month')
       .toDate();
     const endDate = moment
-      .tz({ year, month, day: 1 }, 'UTC')
-      .startOf('day')
+      .tz({ year, month: month - 1 }, 'UTC')
+      .endOf('month')
       .toDate();
     const studyIds = (
       await this.studyMemberRepository.find({

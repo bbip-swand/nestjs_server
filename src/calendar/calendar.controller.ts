@@ -1,5 +1,5 @@
-import { Body, Get, Param, Post, Put, Request } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { Body, Get, Param, Post, Put, Query, Request } from '@nestjs/common';
+import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CalendarService } from './calendar.service';
@@ -10,17 +10,19 @@ import { ScheduleInfoResponseDto } from './dto/scheduleInfo-response.dto';
 export class CalendarController {
   constructor(private readonly calendarService: CalendarService) {}
 
-  @Get('list/:year/:month')
+  @Get('list')
   @ApiOperation({
     summary: '연도 및 월별 캘린더 일정 조회',
     description: '메인 캘린더 뷰에서 호출, 아무것도 없을 시 [] 반환',
   })
+  @ApiQuery({ name: 'year' })
+  @ApiQuery({ name: 'month' })
   @RestMethod({
     response: ScheduleInfoResponseDto,
   })
   async getCalendarListByMonth(
-    @Param('year') year: number,
-    @Param('month') month: number,
+    @Query('year') year: number,
+    @Query('month') month: number,
     @Request() req,
   ) {
     return this.calendarService.getCalendarListByMonth(year, month, req.user);

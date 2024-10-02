@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { jwtConstants } from 'src/auth/constants';
+import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
 import { TransactionCoreModule } from 'src/transaction-core/transaction-core.module';
@@ -12,7 +13,7 @@ import { UsersService } from './users.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserInfo]),
+    TypeOrmModule.forFeature([User, UserInfo, StudyMember]),
     forwardRef(() => AuthModule),
     forwardRef(() => TransactionCoreModule),
     JwtModule.register({

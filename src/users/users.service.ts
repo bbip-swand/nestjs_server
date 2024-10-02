@@ -7,6 +7,7 @@ import { AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
 import { lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
+import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
 import { TransactionCoreService } from 'src/transaction-core/transaction-core.service';
@@ -21,6 +22,8 @@ export class UsersService {
     private usersRepository: Repository<User>,
     @InjectRepository(UserInfo)
     private userInfoRepository: Repository<UserInfo>,
+    @InjectRepository(StudyMember)
+    private studyMemberRepository: Repository<StudyMember>,
     private authService: AuthService,
     private jwtService: JwtService,
     private readonly httpService: HttpService,
@@ -204,5 +207,19 @@ export class UsersService {
 
   async findByAppleId(appleId: string): Promise<User> {
     return this.usersRepository.findOne({ where: { appleId } });
+  }
+
+  async checkNewUser(user: User) {
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: { dbUserId: user.dbUserId },
+    });
+    if (studyMembers.length > 0) {
+      return {
+        isNewUser: false,
+      };
+    }
+    return {
+      isNewUser: true,
+    };
   }
 }

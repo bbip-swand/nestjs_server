@@ -80,4 +80,11 @@ export class UsersController {
     const result = await this.usersService.updateUserInfo(dto, req.user);
     return result;
   }
+
+  @Get('check/new-user')
+  @ApiOperation({ summary: '신규 유저인지 확인' })
+  async checkNewUser(@Request() req) {
+    const result = await this.usersService.checkNewUser(req.user);
+    return result;
+  }
 }

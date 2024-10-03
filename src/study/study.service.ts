@@ -82,54 +82,52 @@ export class StudyService {
     });
 
     const currentDate = moment.tz('Asia/Seoul');
-    const startDate = moment(studyInfo.studyStartDate);
-    const endDate = moment(studyInfo.studyEndDate);
     const todayDayOfWeek: number =
       currentDate.day() === 0 ? 6 : currentDate.day() - 1;
     const nowTime = moment(currentDate, 'HH:mm');
-    // const currentDate = moment().utc().add(9, 'hours');
-    const currentWeek = currentDate.diff(startDate, 'weeks') + 1;
+    const studyDateAndTimes = studyInfo.daysOfWeek.map((dayOfWeek, index) => {
+      let studyDate;
+      if (+dayOfWeek > todayDayOfWeek) {
+        studyDate = currentDate
+          .clone()
+          .add(+dayOfWeek - todayDayOfWeek, 'days');
+      } else if (+dayOfWeek < todayDayOfWeek) {
+        studyDate = currentDate
+          .clone()
+          .add(+dayOfWeek + 7 - todayDayOfWeek, 'days');
+      } else {
+        studyDate = nowTime.isAfter(
+          moment(studyInfo.studyTimes[index].startTime, 'HH:mm'),
+        )
+          ? currentDate.clone().add(1, 'weeks')
+          : currentDate.clone();
+      }
+      const leftDays = studyDate.diff(todayDate, 'days');
+      return {
+        studyDate,
+        dayOfWeek,
+        studyTime: studyInfo.studyTimes[index],
+        leftDays,
+      };
+    });
+    let pendingDate;
 
-    const isThisWeekStudyExist = studyInfo.daysOfWeek.some(
-      (dayOfWeek, index) =>
-        +dayOfWeek > todayDayOfWeek ||
-        (+dayOfWeek === todayDayOfWeek &&
-          !nowTime.isAfter(
-            moment(studyInfo.studyTimes[index].startTime, 'HH:mm'),
-          )),
-    );
-    const startDateDayOfWeek = startDate.day() === 0 ? 6 : startDate.day() - 1;
+    studyDateAndTimes.sort((a, b) => {
+      if (a.leftDays === b.leftDays) {
+        const aTime = moment(a.studyTime.startTime, 'HH:mm');
+        const bTime = moment(b.studyTime.startTime, 'HH:mm');
+        return aTime.isBefore(bTime) ? -1 : 1;
+      }
+      return a.leftDays - b.leftDays;
+    });
     const daysOfWeekKor = ['월', '화', '수', '목', '금', '토', '일'];
-    let pendingDate = '';
-    let pendingDateIndex = -1;
-    if (isThisWeekStudyExist) {
-      const filteredTimePair = studyInfo.daysOfWeek
-        .map((dayOfWeek, index) => ({
-          dayOfWeek,
-          studyTime: studyInfo.studyTimes[index],
-        }))
-        .filter(
-          (timePair) =>
-            +timePair.dayOfWeek > todayDayOfWeek ||
-            (+timePair.dayOfWeek === todayDayOfWeek &&
-              !nowTime.isAfter(moment(timePair.studyTime.startTime, 'HH:mm'))),
-        )[0];
-      pendingDate = moment(startDate)
-        .add(currentWeek - 1, 'weeks')
-        .add((+filteredTimePair.dayOfWeek + 7 - startDateDayOfWeek) % 7, 'days')
-        .format(`M월 D일 (${daysOfWeekKor[+filteredTimePair.dayOfWeek]})`);
-      pendingDateIndex = studyInfo.daysOfWeek.indexOf(
-        filteredTimePair.dayOfWeek,
-      );
+    if (studyDateAndTimes.length === 0) {
+      pendingDate = '남은 스터디 일정이 없습니다.';
     } else {
-      const pendingMoment = startDate
-        .clone()
-        .add(currentWeek, 'weeks')
-        .add((+studyInfo.daysOfWeek[0] + 7 - startDateDayOfWeek) % 7, 'days');
-      pendingDate = pendingMoment.format(
-        `M월 D일 (${daysOfWeekKor[+studyInfo.daysOfWeek[0]]})`,
+      const pendingStudy = studyDateAndTimes[0];
+      pendingDate = pendingStudy.studyDate.format(
+        `M월 D일 (${daysOfWeekKor[+pendingStudy.dayOfWeek]}) / ${pendingStudy.studyTime.startTime} ~ ${pendingStudy.studyTime.endTime}`,
       );
-      pendingDateIndex = studyInfo.daysOfWeek.indexOf(studyInfo.daysOfWeek[0]);
     }
     const result = {
       ...studyInfo,
@@ -139,7 +137,6 @@ export class StudyService {
       studyMembers: studyMembersInfo,
       currentWeek: currentWeekContent[0].week,
       pendingDate,
-      pendingDateIndex,
       place: currentWeekContent[0].place,
       session,
       isManager,

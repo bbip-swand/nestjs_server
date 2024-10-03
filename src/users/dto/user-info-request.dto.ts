@@ -7,7 +7,7 @@ export class userInfoRequestDto {
   name: string;
 
   @Expose()
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: String, example: 'null' })
   profileImageUrl?: string;
 
   @Expose()

@@ -8,6 +8,7 @@ import { AppleSignupResponseDto } from './dto/apple-signup-response.dto';
 import { FcmRequestDto } from './dto/fcm-request.dto';
 import { userInfoRequestDto } from './dto/user-info-request.dto';
 import { UsersService } from './users.service';
+import { isNewUserResponseDto } from './dto/isNewUser-response.dto';
 
 @MemberJwtController('users')
 export class UsersController {
@@ -50,6 +51,9 @@ export class UsersController {
 
   @Get('info')
   @ApiOperation({ summary: '유저 정보 조회' })
+  @RestMethod({
+    response: userInfoRequestDto,
+  })
   async getUserInfo(@Request() req) {
     const result = await this.usersService.getUserInfo(req.user);
     return result;
@@ -83,6 +87,9 @@ export class UsersController {
 
   @Get('check/new-user')
   @ApiOperation({ summary: '신규 유저인지 확인' })
+  @RestMethod({
+    response: isNewUserResponseDto,
+  })
   async checkNewUser(@Request() req) {
     const result = await this.usersService.checkNewUser(req.user);
     return result;

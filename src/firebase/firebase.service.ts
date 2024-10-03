@@ -46,6 +46,7 @@ export class FirebaseService {
         body: message,
       },
     };
+    if (tokens.length === 0) return { error: 'Tokens are empty' };
 
     const result = await admin.messaging().sendEachForMulticast(payload);
     return result;

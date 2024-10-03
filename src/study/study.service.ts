@@ -69,17 +69,35 @@ export class StudyService {
       }),
     );
     const isManager = studyInfo.studyLeaderId === user.dbUserId;
-    const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
-    const currentWeekContent = await this.weeklyStudyContentRepository.find({
-      where: {
-        dbStudyInfoId: studyInfo.dbStudyInfoId,
-        studyStartDate: LessThanOrEqual(todayDate),
-      },
-      order: {
-        studyStartDate: 'DESC',
-      },
-      take: 1,
-    });
+    // const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
+    const now = moment.tz('Asia/Seoul');
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+
+    let currentWeekContent;
+    const studyStartDate = moment(studyInfo.studyStartDate);
+    if (studyStartDate.isAfter(todayDate)) {
+      currentWeekContent = await this.weeklyStudyContentRepository.find({
+        where: {
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          studyStartDate: MoreThanOrEqual(todayDate),
+        },
+        order: {
+          studyStartDate: 'ASC',
+        },
+        take: 1,
+      });
+    } else {
+      currentWeekContent = await this.weeklyStudyContentRepository.find({
+        where: {
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          studyStartDate: LessThanOrEqual(todayDate),
+        },
+        order: {
+          studyStartDate: 'DESC',
+        },
+        take: 1,
+      });
+    }
 
     const currentDate = moment.tz('Asia/Seoul');
     const todayDayOfWeek: number =

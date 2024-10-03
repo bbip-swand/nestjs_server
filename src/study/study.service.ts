@@ -422,7 +422,6 @@ export class StudyService {
     const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
       where: {
         dbStudyInfoId: In(studyIds),
-        studyStartDate: LessThanOrEqual(todayDate),
         studyEndDate: MoreThanOrEqual(todayDate),
       },
     });
@@ -434,19 +433,35 @@ export class StudyService {
     }
     const currentWeek = await Promise.all(
       studyInfos.map(async (studyInfo) => {
-        const currentWeekContent = await this.weeklyStudyContentRepository.find(
-          {
-            where: {
-              dbStudyInfoId: studyInfo.dbStudyInfoId,
-              studyStartDate: LessThanOrEqual(todayDate),
-            },
-            order: {
-              studyStartDate: 'DESC',
-            },
-            take: 1,
-          },
-        );
-        return currentWeekContent[0].week;
+        const studyStartDate = moment(studyInfo.studyStartDate);
+        if (studyStartDate.isAfter(todayDate)) {
+          const currentWeekContent =
+            await this.weeklyStudyContentRepository.find({
+              where: {
+                dbStudyInfoId: studyInfo.dbStudyInfoId,
+                studyStartDate: MoreThanOrEqual(todayDate),
+              },
+              order: {
+                studyStartDate: 'ASC',
+              },
+              take: 1,
+            });
+          return currentWeekContent[0].week;
+        } else {
+          const currentWeekContent =
+            await this.weeklyStudyContentRepository.find({
+              where: {
+                dbStudyInfoId: studyInfo.dbStudyInfoId,
+                studyStartDate: LessThanOrEqual(todayDate),
+              },
+              order: {
+                studyStartDate: 'DESC',
+              },
+              take: 1,
+            });
+
+          return currentWeekContent[0].week;
+        }
       }),
     );
 

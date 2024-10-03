@@ -11,6 +11,10 @@ export class pendingstudyResponseDto {
   studyName: string;
 
   @Expose()
+  @ApiProperty({ description: '스터디 전체 주차', type: Number })
+  totalWeeks: number;
+
+  @Expose()
   @ApiProperty({ description: '스터디 주차', type: Number })
   studyWeek: number;
 

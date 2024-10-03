@@ -182,7 +182,6 @@ export class StudyService {
     const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
       where: {
         dbStudyInfoId: In(studyIds),
-        // studyStartDate: LessThanOrEqual(todayDate),
         studyEndDate: MoreThanOrEqual(todayDate),
       },
     });
@@ -409,7 +408,6 @@ export class StudyService {
     const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
       where: {
         studyLeaderId: user.dbUserId,
-        studyStartDate: LessThanOrEqual(todayDate),
         studyEndDate: MoreThanOrEqual(todayDate),
       },
     });

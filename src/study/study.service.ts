@@ -84,32 +84,37 @@ export class StudyService {
     const currentDate = moment.tz('Asia/Seoul');
     const todayDayOfWeek: number =
       currentDate.day() === 0 ? 6 : currentDate.day() - 1;
+    const endDate = moment(studyInfo.studyEndDate);
     const nowTime = moment(currentDate, 'HH:mm');
-    const studyDateAndTimes = studyInfo.daysOfWeek.map((dayOfWeek, index) => {
-      let studyDate;
-      if (+dayOfWeek > todayDayOfWeek) {
-        studyDate = currentDate
-          .clone()
-          .add(+dayOfWeek - todayDayOfWeek, 'days');
-      } else if (+dayOfWeek < todayDayOfWeek) {
-        studyDate = currentDate
-          .clone()
-          .add(+dayOfWeek + 7 - todayDayOfWeek, 'days');
-      } else {
-        studyDate = nowTime.isAfter(
-          moment(studyInfo.studyTimes[index].startTime, 'HH:mm'),
-        )
-          ? currentDate.clone().add(1, 'weeks')
-          : currentDate.clone();
-      }
-      const leftDays = studyDate.diff(todayDate, 'days');
-      return {
-        studyDate,
-        dayOfWeek,
-        studyTime: studyInfo.studyTimes[index],
-        leftDays,
-      };
-    });
+    const studyDateAndTimes = studyInfo.daysOfWeek
+      .map((dayOfWeek, index) => {
+        let studyDate;
+        if (+dayOfWeek > todayDayOfWeek) {
+          studyDate = currentDate
+            .clone()
+            .add(+dayOfWeek - todayDayOfWeek, 'days');
+        } else if (+dayOfWeek < todayDayOfWeek) {
+          studyDate = currentDate
+            .clone()
+            .add(+dayOfWeek + 7 - todayDayOfWeek, 'days');
+        } else {
+          studyDate = nowTime.isAfter(
+            moment(studyInfo.studyTimes[index].startTime, 'HH:mm'),
+          )
+            ? currentDate.clone().add(1, 'weeks')
+            : currentDate.clone();
+        }
+        const leftDays = studyDate.diff(todayDate, 'days');
+        return {
+          studyDate,
+          dayOfWeek,
+          studyTime: studyInfo.studyTimes[index],
+          leftDays,
+        };
+      })
+      .filter((studyDateAndTime) =>
+        endDate.isAfter(studyDateAndTime.studyDate),
+      );
     let pendingDate;
 
     studyDateAndTimes.sort((a, b) => {
@@ -255,8 +260,8 @@ export class StudyService {
 
     const individualStudyDateAndTime = studyInfos.flatMap((studyInfo) => {
       const startDate = moment(studyInfo.studyStartDate);
+      const endDate = moment(studyInfo.studyEndDate);
       const weekNumber = now.diff(startDate, 'weeks') + 1;
-      console.log(weekNumber);
       const studyDateAndTimes = studyInfo.daysOfWeek.flatMap(
         (dayOfWeek, index) => {
           let studyDate;
@@ -282,18 +287,22 @@ export class StudyService {
           };
         },
       );
-      return studyDateAndTimes.map((studyDateAndTime) => {
-        return {
-          studyId: studyInfo.studyId,
-          studyName: studyInfo.studyName,
-          studyWeek: weekNumber,
-          startDate: studyInfo.studyStartDate,
-          studyDate: studyDateAndTime.studyDate.format('YYYY-MM-DD'),
-          studyTime: studyDateAndTime.studyTime,
-          leftDays: studyDateAndTime.leftDays,
-          place: studyInfo.relWeeklyStudyContent[weekNumber - 1].place,
-        };
-      });
+      return studyDateAndTimes
+        .map((studyDateAndTime) => {
+          return {
+            studyId: studyInfo.studyId,
+            studyName: studyInfo.studyName,
+            studyWeek: weekNumber,
+            startDate: studyInfo.studyStartDate,
+            studyDate: studyDateAndTime.studyDate.format('YYYY-MM-DD'),
+            studyTime: studyDateAndTime.studyTime,
+            leftDays: studyDateAndTime.leftDays,
+            place: studyInfo.relWeeklyStudyContent[weekNumber - 1].place,
+          };
+        })
+        .filter((studyDateAndTime) =>
+          endDate.isAfter(studyDateAndTime.studyDate),
+        );
     });
     if (individualStudyDateAndTime.length === 0) {
       throw new HttpException(

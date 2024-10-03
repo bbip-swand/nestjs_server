@@ -29,4 +29,8 @@ export class CheckAttendanceResponseDto {
   @Expose()
   @ApiProperty({ description: '스터디장 여부', type: Boolean })
   isManager: boolean;
+
+  @Expose()
+  @ApiProperty({ description: '출석 인증 여부', type: Boolean })
+  status: boolean;
 }

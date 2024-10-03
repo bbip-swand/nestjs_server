@@ -124,7 +124,24 @@ export class AttendanceService {
             dbStudyInfoId: studyInfo.dbStudyInfoId,
           },
         });
+        const currentAttendance = await this.attendanceRepository.findOne({
+          where: {
+            dbUserId: user.dbUserId,
+            dbStudyInfoId: studyInfo.dbStudyInfoId,
+            session: attendanceInfo.session,
+          },
+        });
+        if (!currentAttendance) {
+          throw new HttpException('attendance Not Found', HttpStatus.NOT_FOUND); //출석 정보 없음
+        }
+        if (currentAttendance.status === 'ATTENDED') {
+          attendanceInfo['status'] = true;
+        } else {
+          attendanceInfo['status'] = false;
+        }
+
         const isManager = studyMember.isManager;
+
         if (!isManager) {
           delete attendanceInfo.code;
         }

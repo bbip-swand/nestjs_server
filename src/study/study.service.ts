@@ -261,7 +261,6 @@ export class StudyService {
     const individualStudyDateAndTime = studyInfos.flatMap((studyInfo) => {
       const startDate = moment(studyInfo.studyStartDate);
       const endDate = moment(studyInfo.studyEndDate);
-      const weekNumber = now.diff(startDate, 'weeks') + 1;
       const studyDateAndTimes = studyInfo.daysOfWeek.flatMap(
         (dayOfWeek, index) => {
           let studyDate;
@@ -289,9 +288,12 @@ export class StudyService {
       );
       return studyDateAndTimes
         .map((studyDateAndTime) => {
+          const weekNumber =
+            studyDateAndTime.studyDate.diff(startDate, 'weeks') + 1;
           return {
             studyId: studyInfo.studyId,
             studyName: studyInfo.studyName,
+            totalWeeks: studyInfo.totalWeeks,
             studyWeek: weekNumber,
             startDate: studyInfo.studyStartDate,
             studyDate: studyDateAndTime.studyDate.format('YYYY-MM-DD'),

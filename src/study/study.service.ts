@@ -479,8 +479,8 @@ export class StudyService {
     }
     const startDate = moment(studyInfo.studyStartDate);
     const endDate = moment(studyInfo.studyEndDate);
-    const dayDiff = endDate.diff(startDate, 'days');
-    const weekDiff = endDate.diff(startDate, 'weeks');
+    const dayDiff = endDate.diff(startDate, 'days') + 1;
+    const weekDiff = endDate.diff(startDate, 'weeks') + 1;
     if (
       studyInfo.totalWeeks * 7 !== dayDiff ||
       studyInfo.totalWeeks === 0 ||

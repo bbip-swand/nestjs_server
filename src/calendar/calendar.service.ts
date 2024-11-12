@@ -128,9 +128,8 @@ export class CalendarService {
       throw new HttpException('Not a leader', HttpStatus.FORBIDDEN);
     }
     const { startDate, endDate, ...filteredScheduleInfo } = updateScheduleDto;
-
     schedule.startDate = moment.tz(startDate, 'UTC').toDate();
-    schedule.endDate = moment(endDate, 'UTC').toDate();
+    schedule.endDate = moment.tz(endDate, 'UTC').toDate();
     schedule.title = filteredScheduleInfo.title;
     schedule.isHomeView = filteredScheduleInfo.isHomeView;
     schedule.icon = filteredScheduleInfo?.icon;

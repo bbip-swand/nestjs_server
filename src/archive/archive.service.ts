@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service';
 import { Archive } from 'src/models/archive.entity';
@@ -24,7 +24,7 @@ export class ArchiveService {
       where: { studyId },
     });
     if (!studyInfo) {
-      throw new Error('Study not found');
+      throw new HttpException('Study not found', HttpStatus.NOT_FOUND);
     }
     const studyMember = await this.studyMemberRepository.findOne({
       where: {
@@ -33,7 +33,7 @@ export class ArchiveService {
       },
     });
     if (!studyMember) {
-      throw new Error('Study not found');
+      throw new HttpException('Study Member not found', HttpStatus.NOT_FOUND);
     }
     const dbStudyInfoId = studyInfo.dbStudyInfoId;
     const archives: Archive[] = await this.archiveRepository.find({

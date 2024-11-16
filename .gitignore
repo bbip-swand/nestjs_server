@@ -44,4 +44,4 @@ bbip-server.pem
 .env.development
 .env.production
 ecosystem.config.js
-
+/src/config/firebase.config.ts

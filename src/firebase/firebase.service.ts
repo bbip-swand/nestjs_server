@@ -4,7 +4,7 @@ import {
   Message,
   MulticastMessage,
 } from 'firebase-admin/lib/messaging/messaging-api';
-import firebaseConfig from 'src/config/firebase-admin-config';
+import firebaseConfig from 'src/config/firebase.config';
 
 @Injectable()
 export class FirebaseService {

@@ -29,12 +29,12 @@ export class UsersController {
     return result;
   }
 
-  // @Post('resign/apple')
-  // @ApiOperation({ summary: 'Apple 회원탈퇴' })
-  // async appleResign(@Request() req) {
-  //   const result = await this.usersService.appleResign(req.user);
-  //   return result;
-  // }
+  @Post('resign/apple')
+  @ApiOperation({ summary: 'Apple 회원탈퇴' })
+  async appleResign(@Request() req) {
+    const result = await this.usersService.appleResign(req.user);
+    return result;
+  }
 
   @Post('fcmToken')
   @ApiOperation({ summary: 'Get FCM Token' })

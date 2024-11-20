@@ -21,6 +21,10 @@ export class StudyBriefInfoResponseDto {
   studyName: string;
 
   @Expose()
+  @ApiProperty({ description: '스터디장 여부', type: Boolean })
+  isManager: boolean;
+
+  @Expose()
   @ApiProperty({ description: '스터디 사진 url(S3)', type: String })
   studyImageUrl: string;
 

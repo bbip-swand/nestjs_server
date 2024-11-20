@@ -11,7 +11,6 @@ import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { StudyService } from './study.service';
-import { findMyStudyResponseDto } from './dto/findMyStudy-response.dto';
 
 @MemberJwtController('study')
 export class StudyController {
@@ -43,15 +42,6 @@ export class StudyController {
   })
   findByInviteCode(@Param('inviteCode') inviteCode: string) {
     return this.studyService.findByInviteCode(inviteCode);
-  }
-
-  @Get('/my-study')
-  @ApiOperation({ summary: '내가 스터디장이며 진행중인 스터디 목록 조회' })
-  @RestMethod({
-    response: findMyStudyResponseDto,
-  })
-  findMyStudyList(@Request() req) {
-    return this.studyService.findMyStudyList(req.user);
   }
 
   @Get('/ongoing')

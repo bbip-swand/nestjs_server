@@ -388,6 +388,7 @@ export class StudyService {
         return {
           studyId: studyInfo.studyId,
           studyName: studyInfo.studyName,
+          isManager: studyInfo.studyLeaderId === user.dbUserId,
           studyImageUrl: studyInfo.studyImageUrl,
           studyField: studyInfo.studyField,
           totalWeeks: studyInfo.totalWeeks,
@@ -400,24 +401,6 @@ export class StudyService {
       },
     );
     return response;
-  }
-
-  async findMyStudyList(user: User) {
-    const now = moment.tz('Asia/Seoul');
-    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
-    const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
-      where: {
-        studyLeaderId: user.dbUserId,
-        studyEndDate: MoreThanOrEqual(todayDate),
-      },
-    });
-    const result = studyInfos.map((studyInfo) => {
-      return {
-        studyId: studyInfo.studyId,
-        studyName: studyInfo.studyName,
-      };
-    });
-    return result;
   }
 
   async findOngoingStudyList(user: User): Promise<StudyBriefInfoResponseDto[]> {
@@ -486,6 +469,7 @@ export class StudyService {
         return {
           studyId: studyInfo.studyId,
           studyName: studyInfo.studyName,
+          isManager: studyInfo.studyLeaderId === user.dbUserId,
           studyImageUrl: studyInfo.studyImageUrl,
           studyField: studyInfo.studyField,
           totalWeeks: studyInfo.totalWeeks,

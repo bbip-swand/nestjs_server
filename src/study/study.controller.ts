@@ -11,6 +11,7 @@ import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { StudyService } from './study.service';
+import { UpdateStudyInfoDto } from './dto/update-studyInfo.dto';
 
 @MemberJwtController('study')
 export class StudyController {
@@ -98,5 +99,21 @@ export class StudyController {
     @Body() dto: UpdatePlaceRequestDto,
   ) {
     return this.studyService.updatePlace(studyId, req.user, dto);
+  }
+
+  @Put('/update/:studyId')
+  @ApiOperation({
+    summary: '스터디 정보 수정',
+    description: '스터디 장만 정보 수정 가능',
+  })
+  @RestMethod({
+    request: UpdateStudyInfoDto,
+  })
+  udateStudyInfo(
+    @Param('studyId') studyId: string,
+    @Request() req,
+    @Body() dto: UpdateStudyInfoDto,
+  ) {
+    return this.studyService.updateStudyInfo(studyId, req.user, dto);
   }
 }

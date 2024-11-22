@@ -13,6 +13,7 @@ import { CreateStudyDto } from './dto/create-study.dto';
 import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
+import { UpdateStudyInfoDto } from './dto/update-studyInfo.dto';
 
 @Injectable()
 export class StudyService {
@@ -596,6 +597,80 @@ export class StudyService {
         { place },
       );
       return { place };
+    } catch (e) {
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateStudyInfo(studyId: string, user: any, dto: UpdateStudyInfoDto) {
+    try {
+      const studyInfo = await this.studyInfoRepository.findOne({
+        where: { studyId },
+      });
+      if (!studyInfo) {
+        throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+      }
+      if (studyInfo.studyLeaderId !== user.dbUserId) {
+        throw new HttpException('Not a leader', HttpStatus.UNAUTHORIZED);
+      }
+      if (
+        studyInfo.daysOfWeek.length === 0 ||
+        studyInfo.studyTimes.length === 0 ||
+        studyInfo.daysOfWeek.length !== studyInfo.studyTimes.length
+      ) {
+        throw new HttpException(
+          '주차별 횟수와 시간 횟수가 맞지 않습니다.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const { studyContents, ...updateInfo } = dto;
+      const newStudyInfo = {
+        ...studyInfo,
+        ...updateInfo,
+      };
+      await this.studyInfoRepository.save(newStudyInfo);
+      const startDate = moment(dto.studyStartDate);
+      let week: number = 1;
+      const weeklyStudyContents = await this.weeklyStudyContentRepository.find({
+        where: { dbStudyInfoId: studyInfo.dbStudyInfoId },
+      });
+      for (
+        let i = 0;
+        i < Math.max(studyContents.length, weeklyStudyContents.length);
+        i++
+      ) {
+        const newStudyContent = studyContents[i];
+        if (i >= weeklyStudyContents.length) {
+          //만일 주차가 증가했을 경우
+          const studyWeekday = startDate
+            .clone()
+            .add(week - 1, 'weeks')
+            .format('YYYY-MM-DD');
+          await this.weeklyStudyContentRepository.save({
+            dbStudyInfoId: newStudyInfo.dbStudyInfoId,
+            week: week++,
+            studyStartDate: studyWeekday,
+            content: newStudyContent,
+          });
+        } else {
+          const currentContent = weeklyStudyContents[i];
+          const studyWeekday = startDate
+            .clone()
+            .add(week - 1, 'weeks')
+            .format('YYYY-MM-DD');
+          const updatedContent = {
+            ...currentContent,
+            content: newStudyContent,
+            week: week++,
+            studyStartDate: studyWeekday,
+          };
+          await this.weeklyStudyContentRepository.save(updatedContent);
+        }
+      }
+      return HttpStatus.OK;
     } catch (e) {
       throw new HttpException(
         'Internal Server Error',

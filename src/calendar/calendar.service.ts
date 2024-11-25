@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Between, In, Repository } from 'typeorm';
 import * as moment from 'moment-timezone';
 import { Calendar } from 'src/models/calendar.entity';
 import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { User } from 'src/models/user.entity';
-import { Between, In, Repository } from 'typeorm';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 
 @Injectable()
@@ -35,9 +35,7 @@ export class CalendarService {
     const now = moment().tz('UTC').add(9, 'hours');
     const filteredSchedules = schedules.filter((schedule) => {
       return (
-        schedule.isHomeView === true &&
-        // now.isSameOrAfter(schedule.startDate) &&
-        now.isSameOrBefore(schedule.endDate)
+        schedule.isHomeView === true && now.isSameOrBefore(schedule.endDate)
       );
     });
     const response = await Promise.all(
@@ -131,11 +129,12 @@ export class CalendarService {
     const { startDate, endDate, ...filteredScheduleInfo } = updateScheduleDto;
     schedule.startDate = moment.tz(startDate, 'UTC').toDate();
     schedule.endDate = moment.tz(endDate, 'UTC').toDate();
-    schedule.title = filteredScheduleInfo.title;
-    schedule.isHomeView = filteredScheduleInfo.isHomeView;
-    schedule.icon = filteredScheduleInfo?.icon;
+    const newSchedule = {
+      ...schedule,
+      ...filteredScheduleInfo,
+    };
 
-    const updatedSchedule = this.calendarRepository.save(schedule);
+    const updatedSchedule = this.calendarRepository.save(newSchedule);
     return updatedSchedule;
   }
 

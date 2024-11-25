@@ -70,7 +70,6 @@ export class StudyService {
       }),
     );
     const isManager = studyInfo.studyLeaderId === user.dbUserId;
-    // const todayDate: Date = new Date(moment().utc().add(9, 'hours').format());
     const now = moment.tz('Asia/Seoul');
     const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
 

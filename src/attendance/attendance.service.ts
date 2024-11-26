@@ -2,6 +2,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as moment from 'moment-timezone';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { Attendance } from 'src/models/attendance.entity';
@@ -9,7 +10,6 @@ import { StudyInfo } from 'src/models/study-info.entity';
 import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
-import { Repository } from 'typeorm';
 import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
 import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
 

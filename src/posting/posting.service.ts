@@ -196,7 +196,7 @@ export class PostingService {
   async createComment(postingId: string, content: string, user) {
     const posting: Posting = await this.postingRepository.findOne({
       where: { postingId },
-      relations: ['relStudyInfo'],
+      relations: ['relStudyInfo', 'writer'],
     });
     if (!posting) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
@@ -216,7 +216,15 @@ export class PostingService {
     comment.content = content;
     comment.writer = studyMember;
     comment.relPosting = posting;
-
+    const postingUser = await this.studyMemberRepository.findOne({
+      where: { dbUserId: posting.writer.dbUserId },
+      relations: ['relUser'],
+    });
+    await this.firebaseService.fcm(
+      postingUser.relUser.fcmToken,
+      '새로운 댓글이 등록되었습니다.',
+      posting.title,
+    );
     await this.commentRepository.save(comment);
 
     return comment;

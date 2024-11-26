@@ -612,16 +612,16 @@ export class StudyService {
     });
     await this.firebaseService.multiFcm(
       fcmTokens,
-      `${dto.week}주차 스터디 장소가 변경되었습니다.`,
+      `${dto.session}주차 스터디 장소가 변경되었습니다.`,
       studyInfo.studyName,
     );
     if (!studyMember || !studyMember.isManager) {
       throw new HttpException('Not a manager', HttpStatus.UNAUTHORIZED);
     }
     try {
-      const { place, week } = dto;
+      const { place, session } = dto;
       await this.weeklyStudyContentRepository.update(
-        { dbStudyInfoId: studyInfo.dbStudyInfoId, week: week },
+        { dbStudyInfoId: studyInfo.dbStudyInfoId, week: session },
         { place },
       );
       return { place };

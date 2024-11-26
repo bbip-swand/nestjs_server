@@ -220,11 +220,13 @@ export class PostingService {
       where: { dbUserId: posting.writer.dbUserId },
       relations: ['relUser'],
     });
-    await this.firebaseService.fcm(
-      postingUser.relUser.fcmToken,
-      '새로운 댓글이 등록되었습니다.',
-      posting.title,
-    );
+    if (postingUser.relUser.dbUserId !== user.dbUserId) {
+      await this.firebaseService.fcm(
+        postingUser.relUser.fcmToken,
+        '새로운 댓글이 등록되었습니다.',
+        posting.title,
+      );
+    }
     await this.commentRepository.save(comment);
 
     return comment;

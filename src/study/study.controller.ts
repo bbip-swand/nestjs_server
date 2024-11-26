@@ -78,7 +78,6 @@ export class StudyController {
     request: CreateStudyDto,
   })
   createStudy(@Body() studyInfoDto: CreateStudyDto, @Request() req) {
-    // eslint-disable-next-line prettier/prettier
     return this.studyService.createStudyInfo(studyInfoDto, req.user);
   }
 

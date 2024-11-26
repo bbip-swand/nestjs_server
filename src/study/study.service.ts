@@ -36,6 +36,7 @@ export class StudyService {
     const studyInfo: StudyInfo = await this.studyInfoRepository.findOne({
       where: { studyId },
     });
+    console.log(studyInfo);
     if (!studyInfo) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }

@@ -110,9 +110,9 @@ export class UsersService {
       throw new HttpException('Apple Resign Error', HttpStatus.BAD_REQUEST);
     });
 
-    await this.usersRepository.delete({ dbUserId: user.dbUserId });
     await this.studyInfoRepository.delete({ studyLeaderId: user.dbUserId });
-    await this.studyMemberRepository.delete({ dbUserId: user.dbUserId });
+    // await this.studyMemberRepository.delete({ dbUserId: user.dbUserId });
+    await this.usersRepository.delete({ dbUserId: user.dbUserId });
 
     return { message: 'success' };
   }

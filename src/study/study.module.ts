@@ -12,6 +12,7 @@ import { StudyService } from './study.service';
 import { StudyMember } from 'src/models/study-member.entity';
 import { UserInfo } from 'src/models/user-info.entity';
 import { Attendance } from 'src/models/attendance.entity';
+import { FirebaseModule } from 'src/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { Attendance } from 'src/models/attendance.entity';
     JwtModule.register({
       secret: jwtConstants.secret,
     }),
+    FirebaseModule,
   ],
   controllers: [StudyController],
   providers: [StudyService],

@@ -14,10 +14,12 @@ import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
 import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { UpdateStudyInfoDto } from './dto/update-studyInfo.dto';
+import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Injectable()
 export class StudyService {
   constructor(
+    private firebaseService: FirebaseService,
     @InjectRepository(StudyInfo)
     private studyInfoRepository: Repository<StudyInfo>,
     @InjectRepository(WeeklyStudyContent)
@@ -267,7 +269,7 @@ export class StudyService {
     const studyInfos: StudyInfo[] = await this.studyInfoRepository.find({
       where: {
         dbStudyInfoId: In(studyIds),
-        studyStartDate: LessThanOrEqual(todayDate),
+        // studyStartDate: LessThanOrEqual(todayDate),
         studyEndDate: MoreThanOrEqual(todayDate),
       },
       relations: ['relWeeklyStudyContent'],
@@ -563,9 +565,23 @@ export class StudyService {
         dbStudyInfoId: studyinfo.dbStudyInfoId,
       },
     });
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
+      where: {
+        dbStudyInfoId: studyinfo.dbStudyInfoId,
+      },
+      relations: ['relUser'],
+    });
+    const fcmTokens = studyMembers.map(
+      (studyMember) => studyMember.relUser.fcmToken,
+    );
     if (studyMember) {
       throw new HttpException('Already Exists', HttpStatus.BAD_REQUEST);
     }
+    await this.firebaseService.multiFcm(
+      fcmTokens,
+      '새로운 스터디원이 참여했습니다.',
+      studyinfo.studyName,
+    );
     const newStudyMember = await this.studyMemberRepository.save({
       dbUserId: user.dbUserId,
       dbStudyInfoId: studyinfo.dbStudyInfoId,
@@ -580,12 +596,25 @@ export class StudyService {
     if (!studyInfo) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    const studyMember: StudyMember = await this.studyMemberRepository.findOne({
+    const studyMembers: StudyMember[] = await this.studyMemberRepository.find({
       where: {
-        dbUserId: user.dbUserId,
         dbStudyInfoId: studyInfo.dbStudyInfoId,
       },
+      relations: ['relUser'],
     });
+    const studyMember = studyMembers.find(
+      (dbStudyInfoId) => dbStudyInfoId.dbUserId === user.dbUserId,
+    );
+    const fcmTokens = studyMembers.map((studyMember) => {
+      if (studyMember.dbUserId !== user.dbUserId) {
+        return studyMember.relUser.fcmToken;
+      }
+    });
+    await this.firebaseService.multiFcm(
+      fcmTokens,
+      `${dto.session}주차 스터디 장소가 변경되었습니다.`,
+      studyInfo.studyName,
+    );
     if (!studyMember || !studyMember.isManager) {
       throw new HttpException('Not a manager', HttpStatus.UNAUTHORIZED);
     }
@@ -675,6 +704,45 @@ export class StudyService {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async calcCurrentWeek(studyId: string) {
+    const studyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId },
+    });
+    if (!studyInfo) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    const now = moment.tz('Asia/Seoul');
+    const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
+
+    const studyStartDate = moment(studyInfo.studyStartDate);
+    if (studyStartDate.isAfter(todayDate)) {
+      const currentWeekContent = await this.weeklyStudyContentRepository.find({
+        where: {
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          studyStartDate: MoreThanOrEqual(todayDate),
+        },
+        order: {
+          studyStartDate: 'ASC',
+        },
+        take: 1,
+      });
+      return currentWeekContent[0].week;
+    } else {
+      const currentWeekContent = await this.weeklyStudyContentRepository.find({
+        where: {
+          dbStudyInfoId: studyInfo.dbStudyInfoId,
+          studyStartDate: LessThanOrEqual(todayDate),
+        },
+        order: {
+          studyStartDate: 'DESC',
+        },
+        take: 1,
+      });
+
+      return currentWeekContent[0].week;
     }
   }
 }

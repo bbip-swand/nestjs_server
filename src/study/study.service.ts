@@ -319,7 +319,8 @@ export class StudyService {
             studyDate: studyDateAndTime.studyDate.format('YYYY-MM-DD'),
             studyTime: studyDateAndTime.studyTime,
             leftDays: studyDateAndTime.leftDays,
-            place: studyInfo.relWeeklyStudyContent[weekNumber - 1].place,
+            place:
+              studyInfo.relWeeklyStudyContent[weekNumber - 1]?.place || '미정',
           };
         })
         .filter((studyDateAndTime) =>

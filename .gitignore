@@ -36,6 +36,7 @@ lerna-debug.log*
 
 rds-combined-ca-bundle.pem
 bbip-server.pem
+bbip-server-dev.pem
 
 # SERVERLESS
 .serverless

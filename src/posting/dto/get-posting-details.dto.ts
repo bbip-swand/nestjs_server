@@ -3,6 +3,10 @@ import { Expose, Type } from 'class-transformer';
 
 export class CommentDto {
   @Expose()
+  @ApiProperty({ description: '댓글 id', type: Number })
+  commentId: number;
+
+  @Expose()
   @ApiProperty({ description: '작성자 이름', type: String })
   writer: string;
 

@@ -95,7 +95,7 @@ export class PostingService {
           where: { dbUserId: commentWriter.writer.dbUserId },
         });
         return {
-          id: comment.dbCommentId,
+          commentId: comment.dbCommentId,
           writer: commentWriterInfo.name,
           isManager: commentWriter.writer.isManager,
           profileImageUrl: commentWriterInfo.profileImageUrl,

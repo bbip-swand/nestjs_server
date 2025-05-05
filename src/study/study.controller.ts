@@ -1,5 +1,14 @@
-import { Body, Get, Param, Post, Put, Request } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  Body,
+  Get,
+  Param,
+  Post,
+  Put,
+  Request,
+  Delete,
+  HttpStatus,
+} from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
@@ -12,6 +21,7 @@ import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
 import { StudyInfoDto } from './dto/studyInfo-response.dto';
 import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
 import { UpdateStudyInfoDto } from './dto/update-studyInfo.dto';
+import { LeaveStudyDto } from './dto/leave-study.dto';
 
 @MemberJwtController('study')
 export class StudyController {
@@ -108,11 +118,35 @@ export class StudyController {
   @RestMethod({
     request: UpdateStudyInfoDto,
   })
-  udateStudyInfo(
+  updateStudyInfo(
     @Param('studyId') studyId: string,
     @Request() req,
     @Body() dto: UpdateStudyInfoDto,
   ) {
     return this.studyService.updateStudyInfo(studyId, req.user, dto);
+  }
+
+  @Delete('/leave/:studyId')
+  @ApiOperation({
+    summary: '스터디 탈퇴',
+    description:
+      '스터디장이 스터디를 탈퇴하게 되면 스터디가 삭제됩니다. 그 외 스터디원의 탈퇴는 스터디원만 삭제됩니다.',
+  })
+  @RestMethod({
+    request: LeaveStudyDto,
+    response: '탈퇴 완료',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: '스터디/스터디원 정보가 존재하지 않습니다.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: '스터디/스터디원 정보가 존재하지 않습니다.',
+      },
+    },
+  })
+  leaveStudy(@Param('studyId') studyId: string, @Request() req) {
+    return this.studyService.leaveStudy(studyId, req.user);
   }
 }

@@ -714,7 +714,10 @@ export class StudyService {
       where: { studyId },
     });
     if (!studyInfo) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        '스터디 정보가 존재하지 않습니다.',
+        HttpStatus.NOT_FOUND,
+      );
     }
     const now = moment.tz('Asia/Seoul');
     const todayDate: Date = new Date(now.format('YYYY-MM-DD'));
@@ -746,5 +749,36 @@ export class StudyService {
 
       return currentWeekContent[0].week;
     }
+  }
+
+  async leaveStudy(studyId: string, user: User) {
+    const studyInfo = await this.studyInfoRepository.findOne({
+      where: { studyId },
+    });
+    if (!studyInfo) {
+      throw new HttpException(
+        '스터디 정보가 존재하지 않습니다.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    // 스터디장이 탈퇴하면 스터디도 삭제
+    if (studyInfo.studyLeaderId === user.dbUserId) {
+      await this.studyInfoRepository.remove(studyInfo);
+      return HttpStatus.OK;
+    }
+    const studyMember = await this.studyMemberRepository.findOne({
+      where: {
+        dbUserId: user.dbUserId,
+        dbStudyInfoId: studyInfo.dbStudyInfoId,
+      },
+    });
+    if (!studyMember) {
+      throw new HttpException(
+        '스터디원 정보가 존재하지 않습니다.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    await this.studyMemberRepository.remove(studyMember);
+    return HttpStatus.OK;
   }
 }

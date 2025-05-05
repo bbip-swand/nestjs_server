@@ -42,7 +42,9 @@ bbip-server-dev.pem
 .serverless
 .build
 
-.env.development
-.env.production
-ecosystem.config.js
+.env.*
 /src/config/firebase.config.ts
+ecosystem.config.js
+
+# NGINX Settings
+/nginx.conf

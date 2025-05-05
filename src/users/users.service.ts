@@ -13,8 +13,7 @@ import { UserInfo } from 'src/models/user-info.entity';
 import { User } from 'src/models/user.entity';
 import { TransactionCoreService } from 'src/transaction-core/transaction-core.service';
 import { Repository } from 'typeorm';
-import { AppleSignupRequestDto } from './dto/apple-signup-request.dto';
-import { userInfoRequestDto } from './dto/user-info-request.dto';
+import { AppleSignupRequestDto, userInfoRequestDto } from './dto';
 
 @Injectable()
 export class UsersService {

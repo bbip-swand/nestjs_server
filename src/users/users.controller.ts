@@ -3,12 +3,14 @@ import { ApiOperation } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
-import { AppleSignupRequestDto } from './dto/apple-signup-request.dto';
-import { AppleSignupResponseDto } from './dto/apple-signup-response.dto';
-import { FcmRequestDto } from './dto/fcm-request.dto';
-import { userInfoRequestDto } from './dto/user-info-request.dto';
 import { UsersService } from './users.service';
-import { isNewUserResponseDto } from './dto/isNewUser-response.dto';
+import {
+  AppleSignupRequestDto,
+  AppleSignupResponseDto,
+  FcmRequestDto,
+  isNewUserResponseDto,
+  userInfoRequestDto,
+} from './dto';
 
 @MemberJwtController('users')
 export class UsersController {

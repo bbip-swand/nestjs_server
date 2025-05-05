@@ -260,7 +260,7 @@ export class PostingService {
   async deleteComment(commentId: number, user: any) {
     const comment: Comment = await this.commentRepository.findOne({
       where: { dbCommentId: commentId },
-      relations: ['writer', 'relPosting'],
+      relations: ['writer'],
     });
     if (!comment) {
       throw new HttpException('댓글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);

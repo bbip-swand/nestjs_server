@@ -74,9 +74,10 @@ export class PostingController {
 
   @Delete('delete/:postingId')
   @ApiOperation({ summary: '게시글 삭제' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '게시글 삭제 성공',
+  @RestMethod({
+    response: {
+      statusCode: HttpStatus.OK,
+    },
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
@@ -92,9 +93,10 @@ export class PostingController {
 
   @Delete('delete/:commentId')
   @ApiOperation({ summary: '댓글 삭제' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '댓글 삭제 성공',
+  @RestMethod({
+    response: {
+      statusCode: HttpStatus.OK,
+    },
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,

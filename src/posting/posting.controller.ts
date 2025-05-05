@@ -13,6 +13,7 @@ import { RestMethod } from 'src/utils/decorators/rest-method';
 import {
   CreateCommentRequestDto,
   CreatePostingRequestDto,
+  GetPostingDetailsResponseDto,
   PostingResponseDto,
 } from './dto';
 import { PostingService } from './posting.service';
@@ -41,6 +42,9 @@ export class PostingController {
 
   @Get('/details/:postingId')
   @ApiOperation({ summary: '게시글 단건 조회 (댓글까지 세부 조회)' })
+  @RestMethod({
+    response: GetPostingDetailsResponseDto,
+  })
   findOne(@Param('postingId') postingId: string, @Request() req) {
     return this.postingService.findOne(postingId, req.user);
   }

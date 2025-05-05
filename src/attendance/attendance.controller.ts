@@ -3,11 +3,13 @@ import { AttendanceService } from './attendance.service';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RestMethod } from 'src/utils/decorators/rest-method';
-import { CreateAttendanceDto } from './dto/create-attendance-request.dto';
-import { CheckAttendanceResponseDto } from './dto/check-attendance-response.dto';
-import { ApplyAttendanceRequestDto } from './dto/apply-attendance-request.dto';
-import { CreateAttendanceResponseDto } from './dto/create-attendance-response.dto';
-import { AttendanceRecordsResponseDto } from './dto/attendanceRecords-response.dto';
+import {
+  CreateAttendanceDto,
+  CheckAttendanceResponseDto,
+  CreateAttendanceResponseDto,
+  ApplyAttendanceRequestDto,
+  AttendanceRecordsResponseDto,
+} from './dto';
 
 @MemberJwtController('attendance')
 export class AttendanceController {

@@ -10,9 +10,11 @@ import {
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
-import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
-import { CreatePostingRequestDto } from './dto/create-posting-request.dto';
-import { PostingResponseDto } from './dto/postingInfo-response.dto';
+import {
+  CreateCommentRequestDto,
+  CreatePostingRequestDto,
+  PostingResponseDto,
+} from './dto';
 import { PostingService } from './posting.service';
 
 @MemberJwtController('posting')

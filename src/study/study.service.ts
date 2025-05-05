@@ -9,12 +9,14 @@ import { User } from 'src/models/user.entity';
 import { WeeklyStudyContent } from 'src/models/weekly-study-content.entity';
 import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { v4 } from 'uuid';
-import { CreateStudyDto } from './dto/create-study.dto';
-import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
-import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
-import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
-import { UpdateStudyInfoDto } from './dto/update-studyInfo.dto';
 import { FirebaseService } from 'src/firebase/firebase.service';
+import {
+  CreateStudyDto,
+  pendingstudyResponseDto,
+  StudyBriefInfoResponseDto,
+  UpdatePlaceRequestDto,
+  UpdateStudyInfoDto,
+} from './dto';
 
 @Injectable()
 export class StudyService {

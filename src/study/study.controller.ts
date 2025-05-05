@@ -13,15 +13,17 @@ import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { SkipJwtAuthGuard } from 'src/utils/guards/skip-jwt-auth-guard';
 import { StudyService } from './study.service';
-import { CreateStudyDto } from './dto/create-study.dto';
-import { IndividualStudyResponseDto } from './dto/individual-study-response.dto';
-import { pendingstudyResponseDto } from './dto/pending-study-response.dto';
-import { StudyInviteResponseDto } from './dto/study-invite-response.dto';
-import { StudyBriefInfoResponseDto } from './dto/studyBriefInfo-response.dto';
-import { StudyInfoDto } from './dto/studyInfo-response.dto';
-import { UpdatePlaceRequestDto } from './dto/update-place-request.dto';
-import { UpdateStudyInfoDto } from './dto/update-studyInfo.dto';
-import { LeaveStudyDto } from './dto/leave-study.dto';
+import {
+  CreateStudyDto,
+  IndividualStudyResponseDto,
+  LeaveStudyDto,
+  pendingstudyResponseDto,
+  StudyBriefInfoResponseDto,
+  StudyInfoDto,
+  StudyInviteResponseDto,
+  UpdatePlaceRequestDto,
+  UpdateStudyInfoDto,
+} from './dto';
 
 @MemberJwtController('study')
 export class StudyController {

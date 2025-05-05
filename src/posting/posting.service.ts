@@ -95,6 +95,7 @@ export class PostingService {
           where: { dbUserId: commentWriter.writer.dbUserId },
         });
         return {
+          id: comment.dbCommentId,
           writer: commentWriterInfo.name,
           isManager: commentWriter.writer.isManager,
           profileImageUrl: commentWriterInfo.profileImageUrl,
@@ -230,5 +231,50 @@ export class PostingService {
     await this.commentRepository.save(comment);
 
     return comment;
+  }
+
+  async deletePosting(postingId: string, user: any) {
+    const posting: Posting = await this.postingRepository.findOne({
+      where: { postingId },
+      relations: ['writer'],
+    });
+    if (!posting) {
+      throw new HttpException(
+        '게시글을 찾을 수 없습니다.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    if (posting.writer.dbUserId !== user.dbUserId) {
+      throw new HttpException(
+        '게시글 작성자가 아니기에 게시글을 삭제할 수 없습니다.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    await this.postingRepository.delete(postingId);
+    return {
+      statusCode: HttpStatus.OK,
+      message: '게시글 삭제 성공',
+    };
+  }
+
+  async deleteComment(commentId: number, user: any) {
+    const comment: Comment = await this.commentRepository.findOne({
+      where: { dbCommentId: commentId },
+      relations: ['writer', 'relPosting'],
+    });
+    if (!comment) {
+      throw new HttpException('댓글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+    }
+    if (comment.writer.dbUserId !== user.dbUserId) {
+      throw new HttpException(
+        '댓글 작성자가 아니기에 댓글을 삭제할 수 없습니다.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    await this.commentRepository.delete(commentId);
+    return {
+      statusCode: HttpStatus.OK,
+      message: '댓글 삭제 성공',
+    };
   }
 }

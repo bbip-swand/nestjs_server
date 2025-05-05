@@ -1,5 +1,13 @@
-import { Body, Get, Param, Post, Request } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  Body,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Request,
+} from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MemberJwtController } from 'src/utils/decorators/jwt-controller';
 import { RestMethod } from 'src/utils/decorators/rest-method';
 import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
@@ -62,5 +70,41 @@ export class PostingController {
       createCommentRequestDto.content,
       req.user,
     );
+  }
+
+  @Delete('delete/:postingId')
+  @ApiOperation({ summary: '게시글 삭제' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '게시글 삭제 성공',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: '게시글 작성자가 아니기에 게시글을 삭제할 수 없습니다.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: '게시글을 찾을 수 없습니다.',
+  })
+  deletePosting(@Param('postingId') postingId: string, @Request() req) {
+    return this.postingService.deletePosting(postingId, req.user);
+  }
+
+  @Delete('delete/:commentId')
+  @ApiOperation({ summary: '댓글 삭제' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '댓글 삭제 성공',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: '댓글 작성자가 아니기에 댓글을 삭제할 수 없습니다.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: '댓글을 찾을 수 없습니다.',
+  })
+  deleteComment(@Param('commentId') commentId: number, @Request() req) {
+    return this.postingService.deleteComment(commentId, req.user);
   }
 }
